@@ -20,6 +20,14 @@ io.on('connection', (socket) => {
     io.emit('user-list', users);
   });
 
+socket.on('send-message', ({ to, message }) => {
+  io.to(to).emit('receive-message', {
+    from: socket.id,
+    message,
+  });
+});
+
+  
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     users = users.filter(u => u.id !== socket.id);
