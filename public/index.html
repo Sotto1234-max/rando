@@ -228,17 +228,28 @@ function appendMessage(sender, text, isYou = false) {
       });
   }
 
-  imageInput.addEventListener('change', () => {
-    const file = imageInput.files[0];
-    if (!file || !activeUser) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (!messageStore[activeUser]) messageStore[activeUser] = [];
-      messageStore[activeUser].push(`img:${reader.result}`);
-      renderMessages();
-    };
-    reader.readAsDataURL(file);
-  });
+imageInput.addEventListener('change', () => {
+  const file = imageInput.files[0];
+  if (!file || !activeUser) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64Image = reader.result;
+
+    // Store locally
+    if (!messageStore[activeUser]) messageStore[activeUser] = [];
+    messageStore[activeUser].push(`img:${base64Image}`);
+    renderMessages();
+
+    // 🔥 Send to other user
+    socket.emit('send-message', {
+      to: activeUser,
+      message: `img:${base64Image}`,
+    });
+  };
+  reader.readAsDataURL(file);
+});
+
 </script>
 
 <script src="/socket.io/socket.io.js"></script>
