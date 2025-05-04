@@ -1,40 +1,40 @@
 const express = require('express');
-const app = express();
-const http = require('http').createServer(app);
+const http = require('http');
 const { Server } = require('socket.io');
-const io = new Server(http);
 
-const path = require('path');
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static(path.join(__dirname, 'public'))); // Your index.html should be in /public
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 let users = [];
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  socket.on('new-user', (user) => {
-    user.id = socket.id;
-    users.push(user);
+  socket.on('new-user', (userInfo) => {
+    userInfo.id = socket.id;
+    users.push(userInfo);
     io.emit('user-list', users);
   });
 
-socket.on('send-message', ({ to, message }) => {
-  io.to(to).emit('receive-message', {
-    from: socket.id,
-    message,
+  socket.on('send-message', ({ to, message }) => {
+    const receiver = users.find(user => user.name === to);
+    if (receiver) {
+      io.to(receiver.id).emit('receive-message', {
+        from: users.find(u => u.id === socket.id)?.name || 'Unknown',
+        message
+      });
+    }
   });
-});
 
-  
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-    users = users.filter(u => u.id !== socket.id);
+    users = users.filter(user => user.id !== socket.id);
     io.emit('user-list', users);
   });
 });
 
-http.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.use(express.static('public'));
+
+server.listen(3000, () => {
+  console.log('Server listening on http://localhost:3000');
 });
