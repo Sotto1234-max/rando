@@ -23,14 +23,17 @@
     .login-section button {
       background-color: #6a11cb; color: white; border: none; cursor: pointer;
     }
-    .container { display: none; flex: 1; overflow: hidden; }
+    .container {
+      display: none; flex: 1; overflow: hidden;
+      flex-direction: row;
+    }
     .sidebar {
       width: 300px; border-right: 1px solid #ccc; padding: 10px;
       overflow-y: auto; background-color: #fff;
     }
     .sidebar h3 { font-size: 16px; margin-bottom: 10px; }
     .filter-buttons {
-      display: flex; gap: 10px; margin-bottom: 10px;
+      display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
     }
     .filter-buttons button {
       padding: 5px 10px; border: none; border-radius: 20px;
@@ -62,7 +65,7 @@
     }
     .chat-input {
       display: flex; gap: 8px; padding: 10px;
-      border-top: 1px solid #ccc; background-color: #fff;
+      border-top: 1px solid #ccc; background-color: #fff; flex-wrap: wrap;
     }
     .chat-input input[type="text"] {
       flex: 1; padding: 8px; border-radius: 8px;
@@ -70,15 +73,31 @@
     }
     .chat-input button {
       padding: 8px 12px; border: none;
-      border-radius: 8px; background-color: #2979ff;
-      color: white; cursor: pointer;
+      border-radius: 8px; color: white; cursor: pointer;
     }
     .chat-input .image { background-color: #f44336; }
     .chat-input .gif { background-color: #4caf50; }
     .chat-input .emoji { background-color: #ff9800; }
+    .chat-input .send { background-color: #2979ff; }
     .message { margin-bottom: 8px; }
     .message img { max-width: 200px; border-radius: 10px; }
     .message.you { font-weight: bold; }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+        max-height: 250px;
+        overflow-y: auto;
+      }
+      .chat-input {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 <body>
@@ -105,9 +124,9 @@
   <div class="sidebar">
     <h3>Online Users</h3>
     <div class="filter-buttons">
-      <button>🌐 All</button>
-      <button>👨‍🦱 Male</button>
-      <button>👩 Female</button>
+      <button onclick="setFilter('all')">🌐 All</button>
+      <button onclick="setFilter('male')">👨‍🦱 Male</button>
+      <button onclick="setFilter('female')">👩 Female</button>
     </div>
     <div class="user-list" id="userList"></div>
   </div>
@@ -138,6 +157,8 @@
   let currentUserInfo = {};
   let activeUser = null;
   const messageStore = {};
+  let allUsers = [];
+  let currentFilter = "all";
 
   async function loadCountries() {
     const res = await fetch("https://restcountries.com/v3.1/all");
@@ -154,107 +175,44 @@
 
   loadCountries();
 
-function appendMessage(sender, text, isYou = false) {
-  if (!messageStore[activeUser]) messageStore[activeUser] = [];
-
-  // Store message
-  messageStore[activeUser].push(isYou ? `you:${text}` : text);
-
-  // Show in chat if active
-  if (activeUser) {
-    const div = document.createElement('div');
-    div.className = 'message';
-    div.classList.toggle('you', isYou);
-    div.textContent = isYou ? `You: ${text}` : `Stranger: ${text}`;
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }
-}
-
-  
-  function renderMessages() {
-  chatBody.innerHTML = '';
-  const messages = messageStore[activeUser] || [];
-  messages.forEach(msg => {
-    const div = document.createElement('div');
-    div.className = 'message';
-
-    if (msg.startsWith("img:")) {
-      const img = document.createElement('img');
-      img.src = msg.slice(4);
-      div.appendChild(img);
-    } else if (msg.startsWith("you:")) {
-      div.classList.add('you');
-      div.textContent = 'You: ' + msg.slice(4);
-    } else {
-      div.textContent = 'Stranger: ' + msg;
-    }
-
-    chatBody.appendChild(div);
-  });
-  chatBody.scrollTop = chatBody.scrollHeight;
-}
-
-
-  function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text || !activeUser) return;
-
-  appendMessage('You', text, true);
-
-  // Send to server
-  socket.emit('send-message', {
-    to: activeUser,
-    message: text,
-  });
-
-  messageInput.value = '';
-}
-
-
-  function addEmoji() {
-    messageInput.value += "😊";
+  function setFilter(filter) {
+    currentFilter = filter;
+    renderUserList();
   }
 
-  function sendGif() {
-    if (!activeUser) return;
-    fetch("https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=funny")
-      .then(res => res.json())
-      .then(data => {
-        const gifUrl = data.data.images.fixed_height.url;
-        if (!messageStore[activeUser]) messageStore[activeUser] = [];
-        messageStore[activeUser].push(`img:${gifUrl}`);
-        renderMessages();
-      });
-  }
+  function renderUserList() {
+    userList.innerHTML = '';
+    allUsers.forEach(user => {
+      if (user.name === currentUserInfo.name) return;
 
-imageInput.addEventListener('change', () => {
-  const file = imageInput.files[0];
-  if (!file || !activeUser) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64Image = reader.result;
-
-    // Store locally
-    if (!messageStore[activeUser]) messageStore[activeUser] = [];
-    messageStore[activeUser].push(`img:${base64Image}`);
-    renderMessages();
-
-    // 🔥 Send to other user
-    socket.emit('send-message', {
-      to: activeUser,
-      message: `img:${base64Image}`,
+      if (
+        currentFilter === 'all' ||
+        (currentFilter === 'male' && user.gender === 'Male') ||
+        (currentFilter === 'female' && user.gender === 'Female')
+      ) {
+        const userDiv = document.createElement('div');
+        userDiv.className = `user ${user.gender.toLowerCase()}`;
+        userDiv.dataset.username = user.name;
+        userDiv.innerHTML = `
+          <div class="user-info">
+            <strong>${user.name}</strong>
+            <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
+          </div>
+          <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
+        `;
+        userDiv.addEventListener('click', () => {
+          document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+          userDiv.classList.add('active');
+          activeUser = user.name;
+          messageInput.disabled = false;
+          sendBtn.disabled = false;
+          chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
+          renderMessages();
+        });
+        userList.appendChild(userDiv);
+      }
     });
-  };
-  reader.readAsDataURL(file);
-});
-
-</script>
-
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
+  }
 
   function startChat() {
     const name = document.getElementById('username').value.trim();
@@ -269,7 +227,11 @@ imageInput.addEventListener('change', () => {
       return;
     }
 
-    currentUserInfo = { name, age, gender, region, countryCode, countryName, photo: "https://i.pravatar.cc/100?" + Math.random() };
+    currentUserInfo = {
+      name, age, gender, region,
+      countryCode, countryName,
+      photo: "https://i.pravatar.cc/100?" + Math.random()
+    };
     socket.emit('new-user', currentUserInfo);
 
     document.getElementById('loginSection').style.display = 'none';
@@ -278,47 +240,105 @@ imageInput.addEventListener('change', () => {
     chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
   }
 
-  socket.on('user-list', (users) => {
-    userList.innerHTML = '';
-    users.forEach(user => {
-      if (user.name === currentUserInfo.name) return;
-      const userDiv = document.createElement('div');
-      userDiv.className = `user ${user.gender.toLowerCase()}`;
-      userDiv.dataset.username = user.name;
-      userDiv.innerHTML = `
-        <div class="user-info">
-          <strong>${user.name}</strong>
-          <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
-        </div>
-        <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
-      `;
-      userDiv.addEventListener('click', () => {
-        document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-        userDiv.classList.add('active');
-        activeUser = user.name;
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
-        renderMessages();
-      });
-      userList.appendChild(userDiv);
+  function appendMessage(sender, text, isYou = false) {
+    if (!messageStore[activeUser]) messageStore[activeUser] = [];
+    messageStore[activeUser].push(isYou ? `you:${text}` : text);
+    if (activeUser) {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.classList.toggle('you', isYou);
+      div.textContent = isYou ? `You: ${text}` : `Stranger: ${text}`;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+  }
+
+  function renderMessages() {
+    chatBody.innerHTML = '';
+    const messages = messageStore[activeUser] || [];
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message';
+
+      if (msg.startsWith("img:")) {
+        const img = document.createElement('img');
+        img.src = msg.slice(4);
+        div.appendChild(img);
+      } else if (msg.startsWith("you:")) {
+        div.classList.add('you');
+        div.textContent = 'You: ' + msg.slice(4);
+      } else {
+        div.textContent = 'Stranger: ' + msg;
+      }
+
+      chatBody.appendChild(div);
     });
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text || !activeUser) return;
+    appendMessage('You', text, true);
+    socket.emit('send-message', {
+      to: activeUser,
+      message: text,
+    });
+    messageInput.value = '';
+  }
+
+  function addEmoji() {
+    messageInput.value += "😊";
+  }
+
+  function sendGif() {
+    if (!activeUser) return;
+    fetch("https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=funny")
+      .then(res => res.json())
+      .then(data => {
+        const gifUrl = data.data.images.fixed_height.url;
+        if (!messageStore[activeUser]) messageStore[activeUser] = [];
+        messageStore[activeUser].push(`img:${gifUrl}`);
+        renderMessages();
+        socket.emit('send-message', { to: activeUser, message: `img:${gifUrl}` });
+      });
+  }
+
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (!file || !activeUser) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Image = reader.result;
+      if (!messageStore[activeUser]) messageStore[activeUser] = [];
+      messageStore[activeUser].push(`img:${base64Image}`);
+      renderMessages();
+      socket.emit('send-message', {
+        to: activeUser,
+        message: `img:${base64Image}`,
+      });
+    };
+    reader.readAsDataURL(file);
   });
+
+  const socket = io();
+
+  socket.on('user-list', (users) => {
+    allUsers = users;
+    renderUserList();
+  });
+
   socket.on('receive-message', ({ from, message }) => {
-  if (!messageStore[from]) {
-    messageStore[from] = [];
-  }
-  messageStore[from].push(message);
-
-
-  if (activeUser === from) {
-    appendMessage('Stranger', message, false);
-  } else {
-    // Optionally show notification or mark unread
-  }
-});
-
+    if (!messageStore[from]) {
+      messageStore[from] = [];
+    }
+    messageStore[from].push(message);
+    if (activeUser === from) {
+      appendMessage('Stranger', message, false);
+    }
+  });
 </script>
 
+<script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
