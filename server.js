@@ -1,17 +1,32 @@
-// server.js
-const express = require("express");
-const path = require("path");
+const express = require('express');
 const app = express();
+const http = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(http);
+
+const path = require('path');
 const PORT = process.env.PORT || 3000;
 
-// Serve static files from "public" directory
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public'))); // Your index.html should be in /public
 
-// All routes go to index.html (for SPA behavior)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+let users = [];
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('new-user', (user) => {
+    user.id = socket.id;
+    users.push(user);
+    io.emit('user-list', users);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+    users = users.filter(u => u.id !== socket.id);
+    io.emit('user-list', users);
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+http.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
