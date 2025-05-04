@@ -6,53 +6,42 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const users = {}; // { username: socketId }
+let users = []; // Stores users with their info and socket ID
 
-io.on('connection', socket => {
+// Handle incoming socket connections
+io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // Handle new user joining
-  socket.on('new-user', user => {
-    users[user.name] = socket.id;
-
-    // Send updated user list to all clients
-    const userList = Object.entries(users).map(([name, id]) => ({
-      name,
-      socketId: id,
-      ...user, // include other user data like gender, age, country, etc.
-    }));
-    io.emit('user-list', userList);
+  // When a new user connects, store their info
+  socket.on('new-user', (userInfo) => {
+    userInfo.id = socket.id; // Store socket id with the user info
+    users.push(userInfo);
+    console.log('Users online:', users);
+    
+    // Emit the updated user list to all clients
+    io.emit('user-list', users);
   });
 
-  // Handle sending message to a specific user
+  // When a user sends a message, find the receiver by name and send the message to them
   socket.on('send-message', ({ to, message }) => {
-    const receiverSocketId = users[to];
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('receive-message', {
-        from: getUsernameBySocketId(socket.id),
-        message,
+    const receiver = users.find(user => user.name === to);
+    
+    if (receiver) {
+      // Find the sender's name
+      const senderName = users.find(u => u.id === socket.id)?.name || 'Unknown';
+      io.to(receiver.id).emit('receive-message', {
+        from: senderName,
+        message
       });
     }
   });
 
-  // Handle user disconnection
+  // When a user disconnects, remove them from the user list
   socket.on('disconnect', () => {
-    const name = getUsernameBySocketId(socket.id);
-    if (name) {
-      delete users[name];
-      io.emit('user-list', Object.entries(users).map(([name, id]) => ({
-        name,
-        socketId: id,
-        // Include any other data if needed
-      })));
-    }
+    users = users.filter(user => user.id !== socket.id);
+    io.emit('user-list', users); // Emit updated user list to all clients
     console.log('User disconnected:', socket.id);
   });
-
-  // Function to get username by socketId
-  function getUsernameBySocketId(id) {
-    return Object.keys(users).find(name => users[name] === id);
-  }
 });
 
 // Serve static files from 'public' directory
