@@ -35,6 +35,17 @@ io.on('connection', (socket) => {
       });
     }
   });
+  // image send korar jonno nicher code ta
+  socket.on('send-image', ({ to, image }) => {
+    const receiver = users.find(user => user.name === to);
+    if (receiver) {
+      const senderName = users.find(u => u.id === socket.id)?.name || 'Unknown';
+      io.to(receiver.id).emit('receive-image', {
+        from: senderName,
+        image
+      });
+    }
+  });
 
   // When a user disconnects, remove them from the user list
   socket.on('disconnect', () => {
