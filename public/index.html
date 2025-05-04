@@ -262,6 +262,63 @@
     reader.readAsDataURL(file);
   });
 </script>
+ 
+  
+  <script src="/socket.io/socket.io.js"></script>
+ <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  function startChat() {
+    const name = document.getElementById('username').value.trim();
+    const age = document.getElementById('age').value.trim();
+    const gender = document.getElementById('gender').value;
+    const countryCode = document.getElementById('country').value;
+    const countryName = document.getElementById('country').selectedOptions[0].text;
+    const region = document.getElementById('region').value.trim();
+
+    if (!name || !age || !gender || !countryCode || !region) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    currentUserInfo = { name, age, gender, region, countryCode, countryName, photo: "https://i.pravatar.cc/100?" + Math.random() };
+    socket.emit('new-user', currentUserInfo);
+
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('chatContainer').style.display = 'flex';
+
+    chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
+  }
+
+  socket.on('user-list', (users) => {
+    userList.innerHTML = '';
+    users.forEach(user => {
+      if (user.name === currentUserInfo.name) return; // skip self
+      const userDiv = document.createElement('div');
+      userDiv.className = `user ${user.gender.toLowerCase()}`;
+      userDiv.dataset.username = user.name;
+      userDiv.innerHTML = `
+        <div class="user-info">
+          <strong>${user.name}</strong>
+          <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
+        </div>
+        <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
+      `;
+      userDiv.addEventListener('click', () => {
+        document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+        userDiv.classList.add('active');
+        activeUser = user.name;
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
+        renderMessages();
+      });
+      userList.appendChild(userDiv);
+    });
+  });
+</script>
+
 
 </body>
 </html>
