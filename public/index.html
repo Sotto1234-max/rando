@@ -173,13 +173,20 @@
   }
 
   function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text || !activeUser) return;
-    if (!messageStore[activeUser]) messageStore[activeUser] = [];
-    messageStore[activeUser].push(`You: ${text}`);
-    messageInput.value = '';
-    renderMessages();
-  }
+  const text = messageInput.value.trim();
+  if (!text || !activeUser) return;
+
+  appendMessage('You', text, true);
+
+  // Send to server
+  socket.emit('send-message', {
+    to: activeUser,
+    message: text,
+  });
+
+  messageInput.value = '';
+}
+
 
   function addEmoji() {
     messageInput.value += "😊";
@@ -262,6 +269,19 @@
       userList.appendChild(userDiv);
     });
   });
+  socket.on('receive-message', ({ from, message }) => {
+  if (!messageStore[from]) {
+    messageStore[from] = [];
+  }
+  messageStore[from].push({ sender: 'other', text: message });
+
+  if (activeUser === from) {
+    appendMessage('Stranger', message, false);
+  } else {
+    // Optionally show notification or mark unread
+  }
+});
+
 </script>
 
 </body>
