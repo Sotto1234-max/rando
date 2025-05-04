@@ -363,7 +363,7 @@ imageInput.addEventListener('change', () => {
     const min = 300;
     const max = 900;
     const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
-    document.getElementById("onlineUserCount").innerText = `Online Users on video chat👫 (${randomCount} )`;
+    document.getElementById("onlineUserCount").innerText = `Online Users (${randomCount} )`;
     
     // Repeat every 15-20 seconds
     const nextUpdate = Math.random() * (20000 - 15000) + 15000; // ms
