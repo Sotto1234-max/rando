@@ -103,7 +103,7 @@
 
 <div class="container" id="chatContainer">
   <div class="sidebar">
-    <h3>Online Users 184</h3>
+    <h3>Online Users</h3>
     <div class="filter-buttons">
       <button>🌐 All</button>
       <button>👨‍🦱 Male</button>
@@ -138,7 +138,6 @@
   let currentUserInfo = {};
   let activeUser = null;
   const messageStore = {};
-  const allUsers = [];
 
   async function loadCountries() {
     const res = await fetch("https://restcountries.com/v3.1/all");
@@ -154,58 +153,6 @@
   }
 
   loadCountries();
-
-  function startChat() {
-    const name = document.getElementById('username').value.trim();
-    const age = document.getElementById('age').value.trim();
-    const gender = document.getElementById('gender').value;
-    const countryCode = document.getElementById('country').value;
-    const countryName = document.getElementById('country').selectedOptions[0].text;
-    const region = document.getElementById('region').value.trim();
-
-    if (!name || !age || !gender || !countryCode || !region) {
-      alert("Please fill all fields");
-      return;
-    }
-
-    currentUserInfo = { name, age, gender, region, countryCode, countryName };
-
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('chatContainer').style.display = 'flex';
-
-    const currentUser = addUserToList(currentUserInfo);
-    allUsers.push(currentUserInfo);
-
-    allUsers.forEach(user => {
-      if (user.name !== currentUserInfo.name) addUserToList(user);
-    });
-
-    chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
-  }
-
-  function addUserToList(user) {
-    const userDiv = document.createElement('div');
-    userDiv.className = `user ${user.gender.toLowerCase()}`;
-    userDiv.dataset.username = user.name;
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <strong>${user.name}</strong>
-        <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
-      </div>
-      <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
-    `;
-    userDiv.addEventListener('click', () => {
-      document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-      userDiv.classList.add('active');
-      activeUser = user.name;
-      messageInput.disabled = false;
-      sendBtn.disabled = false;
-      chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
-      renderMessages();
-    });
-    userList.appendChild(userDiv);
-    return userDiv;
-  }
 
   function renderMessages() {
     chatBody.innerHTML = '';
@@ -262,10 +209,8 @@
     reader.readAsDataURL(file);
   });
 </script>
- 
-  
-  <script src="/socket.io/socket.io.js"></script>
- <script src="/socket.io/socket.io.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io();
 
@@ -294,7 +239,7 @@
   socket.on('user-list', (users) => {
     userList.innerHTML = '';
     users.forEach(user => {
-      if (user.name === currentUserInfo.name) return; // skip self
+      if (user.name === currentUserInfo.name) return;
       const userDiv = document.createElement('div');
       userDiv.className = `user ${user.gender.toLowerCase()}`;
       userDiv.dataset.username = user.name;
@@ -318,7 +263,6 @@
     });
   });
 </script>
-
 
 </body>
 </html>
