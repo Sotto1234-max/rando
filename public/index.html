@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gossip Chat</title>
@@ -169,7 +170,46 @@
       <button class="emoji" onclick="addEmoji()">😊</button>
       <button class="gif" onclick="sendGif()">GIF</button>
       <button class="image" onclick="document.getElementById('imageInput').click()">📷</button>
-      <button class="send" onclick="sendMessage()" id="sendBtn" disabled>Send</button>
+      <!-- Send Button -->
+<button class="send" onclick="sendThenShowAd()" id="sendBtn" disabled>Send</button>
+<script src="https://cdn.adsgram.io/ads.js"></script>
+<script>
+  let AdController;
+
+  // পেজ লোড হলে অ্যাড ইনিশিয়ালাইজ করো
+  window.onload = async function () {
+    try {
+      AdController = window.Adsgram.init({
+        blockId: "int-10200" // এখানে তোমার আসল block ID বসাও
+      });
+    } catch (err) {
+      console.log("Ad init failed:", err);
+    }
+  };
+
+  // এই ফাংশনটা বাটনে ক্লিক করলে কল হবে
+  async function sendThenShowAd() {
+    // প্রথমে মেসেজ পাঠাও
+    sendMessage();
+
+    // তারপর অ্যাড দেখাও
+    try {
+      if (AdController) {
+        await AdController.show(); // অ্যাড দেখাবে
+      }
+    } catch (err) {
+      console.log("Ad failed to show:", err);
+    }
+  }
+
+  // তোর আসল send() ফাংশন
+  function send() {
+    console.log("Message sent!");
+    // এখানে তুই যেটা মেসেজ সেন্ড করিস বা সার্ভারে পাঠাস, সেটা বসাবি
+    // উদাহরণ: socket.emit('send-message', { to: 'User', message: 'Hello!' });
+  }
+</script>
+
     </div>
   </div>
 </div>
