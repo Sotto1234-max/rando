@@ -143,10 +143,10 @@
   <div class="sidebar">
     <h3 id="onlineUserCount">Online Users (300+)</h3>
     <div class="filter-buttons">
-      <button>🌐 All</button>
-      <button>👨‍🦱 Male</button>
-      <button>👩 Female</button>
-    </div>
+  <button id="filterAll">🌐 All</button>
+  <button id="filterMale">👨‍🦱 Male</button>
+  <button id="filterFemale">👩 Female</button>
+</div>
     <div class="user-list" id="userList"></div>
   </div>
 
@@ -172,6 +172,8 @@
   const messageInput = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
   const imageInput = document.getElementById('imageInput');
+
+  let allUsers = [];
 
   let currentUserInfo = {};
   let activeUser = null;
@@ -317,32 +319,51 @@ imageInput.addEventListener('change', () => {
     chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
   }
 
-  socket.on('user-list', (users) => {
-    userList.innerHTML = '';
-    users.forEach(user => {
-      if (user.name === currentUserInfo.name) return;
-      const userDiv = document.createElement('div');
-      userDiv.className = `user ${user.gender.toLowerCase()}`;
-      userDiv.dataset.username = user.name;
-      userDiv.innerHTML = `
-        <div class="user-info">
-          <strong>${user.name}</strong>
-          <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
-        </div>
-        <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
-      `;
-      userDiv.addEventListener('click', () => {
-        document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-        userDiv.classList.add('active');
-        activeUser = user.name;
-        messageInput.disabled = false;
-        sendBtn.disabled = false;
-        chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
-        renderMessages();
-      });
-      userList.appendChild(userDiv);
+
+socket.on('user-list', (users) => {
+  // Exclude the current user from the list
+  allUsers = users.filter(user => user.name !== currentUserInfo.name);
+  renderUserList(allUsers);
+});
+
+function renderUserList(users) {
+  userList.innerHTML = '';
+  users.forEach(user => {
+    const userDiv = document.createElement('div');
+    userDiv.className = `user ${user.gender.toLowerCase()}`;
+    userDiv.dataset.username = user.name;
+    userDiv.innerHTML = `
+      <div class="user-info">
+        <strong>${user.name}</strong>
+        <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
+      </div>
+      <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
+    `;
+    userDiv.addEventListener('click', () => {
+      document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+      userDiv.classList.add('active');
+      activeUser = user.name;
+      messageInput.disabled = false;
+      sendBtn.disabled = false;
+      chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
+      renderMessages();
     });
+    userList.appendChild(userDiv);
   });
+}
+  document.getElementById("filterAll").addEventListener("click", () => {
+  renderUserList(allUsers);
+});
+
+document.getElementById("filterMale").addEventListener("click", () => {
+  renderUserList(allUsers.filter(user => user.gender === "Male"));
+});
+
+document.getElementById("filterFemale").addEventListener("click", () => {
+  renderUserList(allUsers.filter(user => user.gender === "Female"));
+});
+
+
   socket.on('receive-message', ({ from, message }) => {
   if (!messageStore[from]) {
     messageStore[from] = [];
