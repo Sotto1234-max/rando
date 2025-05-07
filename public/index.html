@@ -417,27 +417,32 @@ document.getElementById("filterFemale").addEventListener("click", () => {
 </script>
 <script>
 const botNames = {
-  male: ["Ravi", "Amit", "Rahul", "Hasan", "Arif", "Raj", "Sumon", "Kabir", "Anik", "Neel"],
-  female: ["Priya", "Anita", "Fatema", "Nusrat", "Lipi", "Meera", "Nishi", "Joya", "Salma", "Rima"]
+  male: ["Ravi", "Amit", "Rahul", "Hasan", "Arif", "Raj", "Sumon", "Kabir", "Anik", "Neel", "Tomal", "Abir", "Tareq", "Firoz khan", "Aniket"],
+  female: ["Priya", "Anita", "Fatema", "Nusrat", "Lipi", "Meera", "Nishi", "Joya", "Salma", "Rima", "Sathi", "Disha", "Saniya", "Srity"]
 };
 
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Function to generate unique bot names without numbers
+// ✅ Allow reuse of names after all unique names are used once
+function getRandomUniqueName(nameList, usedNames) {
+  const available = nameList.filter(name => !usedNames.has(name));
+  if (available.length === 0) {
+    return getRandomItem(nameList); // allow reuse
+  }
+  const name = getRandomItem(available);
+  usedNames.add(name);
+  return name;
+}
+
 function generateBots() {
   const bots = [];
-  const usedNames = new Set();  // Store used names to avoid duplicates
+  const usedNames = new Set();
 
-  // Generate male bots (30 Indian, 22 Bangladeshi, 18 random)
+  // Male bots
   for (let i = 0; i < 30; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.male);  // Get random male name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.male, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * (35 - 21 + 1)) + 21,
@@ -448,14 +453,8 @@ function generateBots() {
     });
   }
 
-  // Generate Bangladeshi male bots
   for (let i = 0; i < 22; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.male);  // Get random male name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.male, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * (29 - 22 + 1)) + 22,
@@ -466,14 +465,8 @@ function generateBots() {
     });
   }
 
-  // Generate random male bots
   for (let i = 0; i < 18; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.male);  // Get random male name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.male, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * 15) + 20,
@@ -484,14 +477,9 @@ function generateBots() {
     });
   }
 
-  // Generate female bots (10 Bangladeshi, 20 Indian, 9 random)
+  // Female bots
   for (let i = 0; i < 10; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.female);  // Get random female name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.female, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
@@ -503,12 +491,7 @@ function generateBots() {
   }
 
   for (let i = 0; i < 20; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.female);  // Get random female name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.female, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
@@ -520,12 +503,7 @@ function generateBots() {
   }
 
   for (let i = 0; i < 9; i++) {
-    let name;
-    do {
-      name = getRandomItem(botNames.female);  // Get random female name
-    } while (usedNames.has(name));  // Ensure name is unique
-
-    usedNames.add(name);
+    const name = getRandomUniqueName(botNames.female, usedNames);
     bots.push({
       name,
       age: Math.floor(Math.random() * 15) + 20,
@@ -542,22 +520,17 @@ function generateBots() {
 const allBotUsers = generateBots();
 let onlineBots = [];
 
-// Update the bot list with random online bots
 function updateBotList() {
   const count = Math.floor(Math.random() * (90 - 50 + 1)) + 50;
   onlineBots = [...allBotUsers].sort(() => 0.5 - Math.random()).slice(0, count);
 
-  // Combine with real users (optional)
-  const finalList = [...allUsers, ...onlineBots];
-
+  const finalList = [...allUsers, ...onlineBots];  // Assume allUsers is defined elsewhere
   renderUserList(finalList);
 
-  // Repeat after a random interval
   const nextUpdate = Math.random() * (15000 - 8000) + 8000;
   setTimeout(updateBotList, nextUpdate);
 }
 
-// Call this after successful login
 function startChat() {
   const name = document.getElementById('username').value.trim();
   const age = document.getElementById('age').value.trim();
@@ -588,8 +561,9 @@ function startChat() {
 
   chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
 
-  updateBotList(); // 👈 Start bot updates
+  updateBotList();
 }
+
 
 </script>
 
