@@ -416,5 +416,140 @@ document.getElementById("filterFemale").addEventListener("click", () => {
   updateOnlineCount();
 </script>
 
+  <script>
+const botNames = {
+  male: ["Ravi", "Amit", "Rahul", "Hasan", "Arif", "Raj", "Sumon", "Kabir", "Anik", "Neel"],
+  female: ["Priya", "Anita", "Fatema", "Nusrat", "Lipi", "Meera", "Nishi", "Joya", "Salma", "Rima"]
+};
+
+function getRandomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateBots() {
+  const bots = [];
+
+  for (let i = 0; i < 30; i++) {
+    bots.push({
+      name: getRandomItem(botNames.male) + i,
+      age: Math.floor(Math.random() * (35 - 21 + 1)) + 21,
+      gender: "Male",
+      region: "Delhi",
+      countryCode: "in",
+      countryName: "India"
+    });
+  }
+
+  for (let i = 0; i < 22; i++) {
+    bots.push({
+      name: getRandomItem(botNames.male) + (30 + i),
+      age: Math.floor(Math.random() * (29 - 22 + 1)) + 22,
+      gender: "Male",
+      region: "Dhaka",
+      countryCode: "bd",
+      countryName: "Bangladesh"
+    });
+  }
+
+  for (let i = 0; i < 18; i++) {
+    bots.push({
+      name: getRandomItem(botNames.male) + (52 + i),
+      age: Math.floor(Math.random() * 15) + 20,
+      gender: "Male",
+      region: "City" + i,
+      countryCode: getRandomItem(["us", "gb", "ca", "de", "fr", "au"]),
+      countryName: "Randomland"
+    });
+  }
+
+  for (let i = 0; i < 10; i++) {
+    bots.push({
+      name: getRandomItem(botNames.female) + i,
+      age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
+      gender: "Female",
+      region: "Dhaka",
+      countryCode: "bd",
+      countryName: "Bangladesh"
+    });
+  }
+
+  for (let i = 0; i < 20; i++) {
+    bots.push({
+      name: getRandomItem(botNames.female) + (10 + i),
+      age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
+      gender: "Female",
+      region: "Mumbai",
+      countryCode: "in",
+      countryName: "India"
+    });
+  }
+
+  for (let i = 0; i < 9; i++) {
+    bots.push({
+      name: getRandomItem(botNames.female) + (30 + i),
+      age: Math.floor(Math.random() * 15) + 20,
+      gender: "Female",
+      region: "City" + i,
+      countryCode: getRandomItem(["us", "gb", "ca", "de", "fr", "au"]),
+      countryName: "Randomland"
+    });
+  }
+
+  return bots;
+}
+
+const allBotUsers = generateBots();
+let onlineBots = [];
+
+function updateBotList() {
+  const count = Math.floor(Math.random() * (90 - 50 + 1)) + 50;
+  onlineBots = [...allBotUsers].sort(() => 0.5 - Math.random()).slice(0, count);
+
+  // Combine with real users (optional)
+  const finalList = [...allUsers, ...onlineBots];
+
+  renderUserList(finalList);
+
+  // Repeat
+  const nextUpdate = Math.random() * (15000 - 8000) + 8000;
+  setTimeout(updateBotList, nextUpdate);
+}
+
+// Call this after successful login
+function startChat() {
+  const name = document.getElementById('username').value.trim();
+  const age = document.getElementById('age').value.trim();
+  const gender = document.getElementById('gender').value;
+  const countryCode = document.getElementById('country').value;
+  const countryName = document.getElementById('country').selectedOptions[0].text;
+  const region = document.getElementById('region').value.trim();
+
+  if (!name || !age || !gender || !countryCode || !region) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  currentUserInfo = {
+    name,
+    age,
+    gender,
+    region,
+    countryCode,
+    countryName,
+    photo: "https://i.pravatar.cc/100?" + Math.random()
+  };
+
+  socket.emit('new-user', currentUserInfo);
+
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('chatContainer').style.display = 'flex';
+
+  chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
+
+  updateBotList(); // 👈 Start bot updates
+}
+</script>
+
+
 </body>
 </html>
