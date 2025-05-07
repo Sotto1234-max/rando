@@ -114,6 +114,16 @@
   .login-section input, .login-section select, .login-section button {
     width: 100%;
   }
+      .user.unread::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: blue;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 8px;
+}
+
 }
 
     
@@ -339,15 +349,20 @@ function renderUserList(users) {
       </div>
       <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
     `;
-    userDiv.addEventListener('click', () => {
-      document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-      userDiv.classList.add('active');
-      activeUser = user.name;
-      messageInput.disabled = false;
-      sendBtn.disabled = false;
-      chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
-      renderMessages();
-    });
+   userDiv.addEventListener('click', () => {
+  document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
+  userDiv.classList.add('active');
+
+  // ✅ Remove unread blue dot if present
+  userDiv.classList.remove('unread');
+
+  activeUser = user.name;
+  messageInput.disabled = false;
+  sendBtn.disabled = false;
+  chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
+  renderMessages();
+});
+
     userList.appendChild(userDiv);
   });
 }
@@ -364,19 +379,25 @@ document.getElementById("filterFemale").addEventListener("click", () => {
 });
 
 
-  socket.on('receive-message', ({ from, message }) => {
+ socket.on('receive-message', ({ from, message }) => {
   if (!messageStore[from]) {
     messageStore[from] = [];
   }
   messageStore[from].push(message);
 
-
   if (activeUser === from) {
     appendMessage('Stranger', message, false);
   } else {
-    // Optionally show notification or mark unread
+    // ✅ Add blue dot for unread message
+    const userElement = [...document.querySelectorAll('.user')].find(
+      u => u.dataset.username === from
+    );
+    if (userElement) {
+      userElement.classList.add('unread');
+    }
   }
 });
+
 
 </script>
     <script>
