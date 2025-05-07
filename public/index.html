@@ -426,12 +426,21 @@ function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// Function to generate unique bot names
 function generateBots() {
   const bots = [];
+  const usedNames = new Set();  // Store used names to avoid duplicates
 
+  // Generate male bots (30 Indian, 22 Bangladeshi, 18 random)
   for (let i = 0; i < 30; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.male) + i;
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.male) + i,
+      name,
       age: Math.floor(Math.random() * (35 - 21 + 1)) + 21,
       gender: "Male",
       region: "Delhi",
@@ -440,9 +449,16 @@ function generateBots() {
     });
   }
 
+  // Generate Bangladeshi male bots
   for (let i = 0; i < 22; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.male) + (30 + i);
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.male) + (30 + i),
+      name,
       age: Math.floor(Math.random() * (29 - 22 + 1)) + 22,
       gender: "Male",
       region: "Dhaka",
@@ -451,9 +467,16 @@ function generateBots() {
     });
   }
 
+  // Generate random male bots
   for (let i = 0; i < 18; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.male) + (52 + i);
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.male) + (52 + i),
+      name,
       age: Math.floor(Math.random() * 15) + 20,
       gender: "Male",
       region: "City" + i,
@@ -462,9 +485,16 @@ function generateBots() {
     });
   }
 
+  // Generate female bots (10 Bangladeshi, 20 Indian, 9 random)
   for (let i = 0; i < 10; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.female) + i;
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.female) + i,
+      name,
       age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
       gender: "Female",
       region: "Dhaka",
@@ -474,8 +504,14 @@ function generateBots() {
   }
 
   for (let i = 0; i < 20; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.female) + (10 + i);
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.female) + (10 + i),
+      name,
       age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
       gender: "Female",
       region: "Mumbai",
@@ -485,8 +521,14 @@ function generateBots() {
   }
 
   for (let i = 0; i < 9; i++) {
+    let name;
+    do {
+      name = getRandomItem(botNames.female) + (30 + i);
+    } while (usedNames.has(name)); // Ensure name is unique
+
+    usedNames.add(name);
     bots.push({
-      name: getRandomItem(botNames.female) + (30 + i),
+      name,
       age: Math.floor(Math.random() * 15) + 20,
       gender: "Female",
       region: "City" + i,
@@ -549,6 +591,7 @@ function startChat() {
   updateBotList(); // 👈 Start bot updates
 }
 </script>
+
 
 
 </body>
