@@ -129,6 +129,7 @@
 
     
   </style>
+  <script src='//whephiwums.com/sdk.js' data-zone='9229076' data-sdk='show_9229076'></script>
 </head>
 <body>
 
@@ -169,7 +170,48 @@
       <input type="file" id="imageInput" accept="image/*" style="display: none" />
       <button class="emoji" onclick="addEmoji()">😊</button>
       <button class="gif" onclick="sendGif()">GIF</button>
-      <button class="image" onclick="document.getElementById('imageInput').click()">📷</button>
+      <!-- Image Upload Button -->
+<button class="image" onclick="triggerImageInput()">📷</button>
+
+<!-- Hidden Image Input -->
+<input type="file" id="imageInput" style="display:none;" onchange="handleImageUpload(event)">
+
+<script>
+  // Image input trigger function
+  function triggerImageInput() {
+    document.getElementById('imageInput').click();
+  }
+
+  // Handle the image upload (you can process the image or preview it here)
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      console.log('Image selected:', file.name);
+      // You can show a preview or send the image to a server if needed
+    }
+  }
+
+  // Rewarded interstitial ad logic
+  async function showAdAndReward() {
+    // First, trigger the ad
+    try {
+      await show_9229076();  // Show ad
+      alert('You have seen an ad!');
+    } catch (err) {
+      console.log('Ad failed:', err);
+    }
+  }
+
+  // Ad and image upload combined action
+  async function triggerImageAndShowAd() {
+    // Trigger the image input and then show the ad after 1 second
+    triggerImageInput();
+    setTimeout(() => {
+      showAdAndReward();  // Show the ad after image input trigger
+    }, 1000); // 1 second delay for smoother flow (can be adjusted)
+  }
+</script>
+
       <!-- Send Button -->
 <button class="send" onclick="sendThenShowAd()" id="sendBtn" disabled>Send</button>
 <script src="https://cdn.adsgram.io/ads.js"></script>
