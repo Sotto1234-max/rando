@@ -55,10 +55,11 @@ function generateBots() {
 
 const allBotUsers = generateBots();
 
+
 function sendBotMessages(socket, user) {
   const oppositeGender = user.gender === "Male" ? "Female" : "Male";
   const sampleMessages = [
-    "Hi 😊",
+     "Hi 😊",
     "Video chat?",
     "Give your Telegram id ?",
     "are you free?",
@@ -68,17 +69,21 @@ function sendBotMessages(socket, user) {
   const botList = allBotUsers.filter(b => b.gender === oppositeGender);
   const selectedBots = botList.sort(() => 0.5 - Math.random()).slice(0, 4 + Math.floor(Math.random() * 2));
 
-  selectedBots.forEach(bot => {
+  selectedBots.forEach((bot, index) => {
     const msg = getRandomItem(sampleMessages);
+
+    // Delay: 15s to 20s per bot, add incremental base so bots don't send all at once
+    const delay = 15000 + Math.random() * 5000 + (index * 3000); // e.g., 15–23s total
 
     setTimeout(() => {
       socket.emit('receive-message', {
         from: bot.name,
         message: msg
       });
-    }, Math.floor(Math.random() * 3000) + 1000); // 1-4s delay
+    }, delay);
   });
 }
+
 
 // Handle socket connections
 io.on('connection', (socket) => {
