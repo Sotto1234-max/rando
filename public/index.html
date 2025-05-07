@@ -525,6 +525,8 @@ function updateBotList() {
   onlineBots = [...allBotUsers].sort(() => 0.5 - Math.random()).slice(0, count);
 
   const finalList = [...allUsers, ...onlineBots];  // Assume allUsers is defined elsewhere
+  allUsers = finalList;
+  
   renderUserList(finalList);
 
   const nextUpdate = Math.random() * (15000 - 8000) + 8000;
