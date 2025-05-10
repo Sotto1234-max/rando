@@ -1,85 +1,143 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const cors = require("cors");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
-app.use(cors());
-
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+const io = new Server(server);
 
-// Simulated bots
-const maleBots = Array.from({ length: 40 }, (_, i) => ({
-  id: `male_bot_${i + 1}`,
-  name: `Raj${i + 1}`,
-  gender: "male"
-}));
+let users = []; // Real users with socket.id
+const botNames = {
+  male: ["Ravi", "Amit", "Rahul", "Hasan", "Arif", "Raj", "Sumon", "Kabir", "Anik", "Neel", "Tomal", "Abir", "Tareq", "Firoz khan", "Aniket"],
+  female: ["Priya", "Anita", "Fatema", "Nusrat", "Lipi", "Meera", "Nishi", "Joya", "Salma", "Rima", "Sathi", "Disha", "Saniya", "Srity"]
+};
 
-const femaleBots = Array.from({ length: 25 }, (_, i) => ({
-  id: `female_bot_${i + 1}`,
-  name: `Neha${i + 1}`,
-  gender: "female"
-}));
-
-// Real connected users
-let users = []; // array of { id, name, gender }
-let realUsers = {}; // socket.id -> user info
-
-function getRandomBots(botArray, count) {
-  const shuffled = [...botArray].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+function getRandomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+function getRandomUniqueName(list, usedSet) {
+  const available = list.filter(name => !usedSet.has(name));
+  if (available.length === 0) return getRandomItem(list);
+  const name = getRandomItem(available);
+  usedSet.add(name);
+  return name;
+}
 
-  // Real user registration
-  socket.on("register", (user) => {
-    user.id = socket.id;
-    users.push(user);
-    realUsers[socket.id] = user;
-    io.emit("userList", users);
+function generateBots() {
+  const bots = [];
+  const usedNames = new Set();
 
-    // Trigger bots
-    let botsToUse = [];
-    if (user.gender === "female") {
-      botsToUse = getRandomBots(maleBots, 6 + Math.floor(Math.random() * 2));
-    } else if (user.gender === "male") {
-      botsToUse = getRandomBots(femaleBots, 6 + Math.floor(Math.random() * 2));
-    }
-
-    // Simulate bot greetings
-    botsToUse.forEach((bot, index) => {
-      setTimeout(() => {
-        socket.emit("receiveMessage", {
-          message: `Hi ${user.name}, I'm ${bot.name}! 😊`,
-          from: bot.name
-        });
-      }, 1000 + index * 1000);
+  for (let i = 0; i < 30; i++) {
+    bots.push({
+      name: getRandomUniqueName(botNames.male, usedNames),
+      gender: "Male",
+      age: 20 + Math.floor(Math.random() * 10),
+      region: "India",
+      countryCode: "in",
+      countryName: "India"
     });
+  }
+
+  for (let i = 0; i < 30; i++) {
+    bots.push({
+      name: getRandomUniqueName(botNames.female, usedNames),
+      gender: "Female",
+      age: 19 + Math.floor(Math.random() * 10),
+      region: "Bangladesh",
+      countryCode: "bd",
+      countryName: "Bangladesh"
+    });
+  }
+
+  return bots;
+}
+
+const allBotUsers = generateBots();
+
+
+function sendBotMessages(socket, user) {
+  const oppositeGender = user.gender === "Male" ? "Female" : "Male";
+  const sampleMessages = [
+     "Hi 😊",
+    "Video chat?",
+    "Give your Telegram id ?",
+    "are you free?",
+    "Hey 👋"
+  ];
+
+  const botList = allBotUsers.filter(b => b.gender === oppositeGender);
+  const selectedBots = botList.sort(() => 0.5 - Math.random()).slice(0, 4 + Math.floor(Math.random() * 2));
+
+  selectedBots.forEach((bot, index) => {
+    const msg = getRandomItem(sampleMessages);
+
+    // Delay: 15s to 20s per bot, add incremental base so bots don't send all at once
+    const delay = 15000 + Math.random() * 5000 + (index * 3000); // e.g., 15–23s total
+
+    setTimeout(() => {
+      socket.emit('receive-message', {
+        from: bot.name,
+        message: msg
+      });
+    }, delay);
+  });
+}
+
+
+// Handle socket connections
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('new-user', (userInfo) => {
+    userInfo.id = socket.id;
+    users.push(userInfo);
+    console.log('Users online:', users.length);
+
+    // Send user list to all real clients
+io.emit('user-list', users);
+
+
+
+    // Bot messages to the new user
+    sendBotMessages(socket, userInfo);
   });
 
-  // Handle messaging between users
-  socket.on("sendMessage", ({ to, message, from }) => {
-    io.to(to).emit("receiveMessage", { message, from });
+  socket.on('send-message', ({ to, message }) => {
+    const receiver = users.find(u => u.name === to);
+    if (receiver) {
+      const sender = users.find(u => u.id === socket.id);
+      const senderName = sender?.name || 'Unknown';
+      io.to(receiver.id).emit('receive-message', {
+        from: senderName,
+        message
+      });
+    }
   });
 
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-    users = users.filter(u => u.id !== socket.id);
-    delete realUsers[socket.id];
-    io.emit("userList", users);
+  socket.on('send-image', ({ to, image }) => {
+    const receiver = users.find(user => user.name === to);
+    const sender = users.find(u => u.id === socket.id);
+    const senderName = sender?.name || 'Unknown';
+    if (receiver) {
+      io.to(receiver.id).emit('receive-image', {
+        from: senderName,
+        image
+      });
+    }
+  });
+
+  socket.on('disconnect', () => {
+    users = users.filter(user => user.id !== socket.id);
+    io.emit('user-list', users);
+    console.log('User disconnected:', socket.id);
   });
 });
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+// Serve static files
+app.use(express.static('public'));
+
+// Start server
+server.listen(3000, () => {
+  console.log('Server listening on http://localhost:3000');
 });
