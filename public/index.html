@@ -210,6 +210,7 @@
 
   <div class="container" id="chatContainer">
     <div class="sidebar">
+      <h3 id="onlineUserCount">Online Users (300+)</h3>
       <div id="filterButtons">
         <button onclick="filterUsers('all')">🌐All</button>
         <button onclick="filterUsers('male')">👨‍🦱Male</button>
@@ -240,6 +241,16 @@
   </div>
 
   <script>
+
+    const countrySelect = document.getElementById("country");
+  const userList = document.getElementById("userList");
+  const chatHeader = document.getElementById('chatHeader');
+  const chatBody = document.getElementById('chatBody');
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const imageInput = document.getElementById('imageInput');
+  const filterInboxButton = document.getElementById("filterInbox");
+    
     let currentUserInfo = null;
     let activeUser = null;
     let allUsers = [];
