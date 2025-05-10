@@ -15,7 +15,7 @@
       background: #e0e8f0;
     }
 
-    .login-container,
+    .login-section,
     .container {
       display: flex;
       flex-direction: column;
@@ -24,7 +24,7 @@
       height: 100vh;
     }
 
-    .login-container {
+    .login-section {
       background: #fff;
       padding: 2rem;
       border-radius: 12px;
@@ -33,9 +33,9 @@
       max-width: 350px;
     }
 
-    .login-container input,
-    .login-container select,
-    .login-container button {
+    .login-section input,
+    .login-section select,
+    .login-section button {
       width: 100%;
       padding: 0.75rem;
       margin: 0.5rem 0;
@@ -44,7 +44,7 @@
       font-size: 16px;
     }
 
-    .login-container button {
+    .login-section button {
       background: #007bff;
       color: #fff;
       font-weight: bold;
@@ -53,7 +53,7 @@
       transition: background 0.3s;
     }
 
-    .login-container button:hover {
+    .login-section button:hover {
       background: #0056b3;
     }
 
@@ -140,7 +140,7 @@
       background: rgba(255, 255, 255, 0.4);
     }
 
-    .chat-messages {
+    .chat-body {
       flex: 1;
       padding: 1rem;
       overflow-y: auto;
@@ -196,7 +196,7 @@
   </style>
 </head>
 <body>
-  <div class="login-container" id="loginSection">
+  <div class="login-section" id="loginSection">
     <h2 style="margin-bottom: 1rem; color: #333;">Start Random Chat</h2>
     <input type="text" id="username" placeholder="Enter your name" />
     <input type="number" id="age" placeholder="Enter your age" />
@@ -222,20 +222,12 @@
       <div class="chat-header">
         <span id="chatUserName">Chat</span>
         <div>
-          <button 
-  id="videoCallBtn"
-  onclick="show_9229076().then(() => {
-    window.open('https://www.febspot.com/auth/google/?ref=725136', '_blank');
-    alert('Sign in with Gmail to start video chat');
-  })" 
-  style="display:none; background-color: #ff9800; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;">
-  📹 Video Call
-</button>
+  <button id="videoCallBtn">📹</button>
 
           <button onclick="closeChat()">✖</button>
         </div>
       </div>
-      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-body" id="chatBody"></div>
       <div class="chat-input">
         <input type="text" id="messageInput" placeholder="Type a message..." disabled />
         <button class="image" onclick="triggerImageInput()">📷</button>
