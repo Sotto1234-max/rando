@@ -1,656 +1,191 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gossip Chat</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Chat</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    header {
-      background: linear-gradient(to right, #6a11cb, #fc466b);
-      color: white; padding: 10px; text-align: center; font-size: 24px; font-weight: 700;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
     }
-    .login-section {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 20px;
+    .login-container,
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .login-section input, .login-section select, .login-section button {
-      padding: 10px; margin: 10px 0; width: 250px;
-      border: 1px solid #ccc; border-radius: 6px; font-size: 16px;
+    .login-container {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    .login-section button {
-      background-color: #6a11cb; color: white; border: none; cursor: pointer;
+    .login-container input,
+    .login-container select,
+    .login-container button {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      width: 100%;
     }
-    .container { display: none; flex: 1; overflow: hidden; }
+    .container {
+      display: none;
+      flex-direction: row;
+      height: 100vh;
+    }
     .sidebar {
-      width: 300px; border-right: 1px solid #ccc; padding: 10px;
-      overflow-y: auto; background-color: #fff;
+      width: 300px;
+      background-color: #ffffff;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      padding: 1rem;
     }
-    .sidebar h3 { font-size: 16px; margin-bottom: 10px; }
-    .filter-buttons {
-      display: flex; gap: 10px; margin-bottom: 10px;
-    }
-    .filter-buttons button {
-      padding: 5px 10px; border: none; border-radius: 20px;
-      cursor: pointer; background: #eee;
-    }
-    .user-list {
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .user {
-      display: flex; justify-content: space-between;
-      background-color: #cfe2ff; padding: 8px;
-      border-radius: 6px; align-items: center; cursor: pointer;
-    }
-    .user.female { background-color: #f8d7da; }
-    .user.active { background-color: #a3c2ff; }
-    .user-info { display: flex; flex-direction: column; }
-    .flag { width: 20px; height: 15px; }
     .chat-section {
-      flex: 1; display: flex; flex-direction: column;
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      height: 100%;
     }
     .chat-header {
-      padding: 10px;
-      background: linear-gradient(to right, #fc466b, #6a11cb);
-      color: white; font-weight: 600;
+      background-color: #007bff;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .chat-body {
-      flex: 1; background: #f5f5f5;
-      padding: 10px; overflow-y: auto;
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background-color: #f9f9f9;
     }
     .chat-input {
-      display: flex; gap: 8px; padding: 10px;
-      border-top: 1px solid #ccc; background-color: #fff;
+      display: flex;
+      padding: 1rem;
+      border-top: 1px solid #ddd;
+      background-color: white;
     }
-    .chat-input input[type="text"] {
-      flex: 1; padding: 8px; border-radius: 8px;
-      border: 1px solid #ccc;
+    .chat-input input {
+      flex: 1;
+      padding: 0.5rem;
+      margin-right: 0.5rem;
     }
     .chat-input button {
-      padding: 8px 12px; border: none;
-      border-radius: 8px; background-color: #2979ff;
-      color: white; cursor: pointer;
+      padding: 0.5rem 1rem;
     }
-    .chat-input .image { background-color: #f44336; }
-    .chat-input .gif { background-color: #4caf50; }
-    .chat-input .emoji { background-color: #ff9800; }
-    .message { margin-bottom: 8px; }
-    .message img { max-width: 200px; border-radius: 10px; }
-    .message.you { font-weight: bold; }
-
-    @media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #ccc;
-    height: 200px;
-    overflow-y: auto;
-  }
-
-  .chat-section {
-    flex: 1;
-  }
-
-  .chat-input {
-    flex-wrap: wrap;
-  }
-
-  .chat-input button {
-    flex: 1 1 auto;
-    margin-top: 5px;
-  }
-
-  .chat-input input[type="text"] {
-    flex: 100%;
-  }
-
-  .login-section input, .login-section select, .login-section button {
-    width: 100%;
-  }
-      .user.unread::after {
-  content: "";
-  width: 10px;
-  height: 10px;
-  background-color: blue;
-  border-radius: 50%;
-  display: inline-block;
-  margin-left: 8px;
-}
-
-}
-
-    
+    .container.show-chat .sidebar {
+      display: none;
+    }
+    .container.show-chat .chat-section {
+      display: flex;
+    }
+    .container.show-sidebar .sidebar {
+      display: block;
+      width: 100%;
+    }
+    .container.show-sidebar .chat-section {
+      display: none;
+    }
+    #closeChatBtn {
+      background: red;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
-  <script src='//whephiwums.com/sdk.js' data-zone='9229076' data-sdk='show_9229076'></script>
 </head>
 <body>
-
-<header>Gossip</header>
-
-<div class="login-section" id="loginSection">
-  <h2>Enter Your Info</h2>
-  <input type="text" id="username" placeholder="Your Name" required />
-  <input type="number" id="age" placeholder="Your Age" required />
-  <select id="gender" required>
-    <option value="">Select Gender</option>
-    <option value="Male">Male</option>
-    <option value="Female">Female</option>
-  </select>
-  <select id="country" required>
-    <option value="">Select Country</option>
-  </select>
-  <input type="text" id="region" placeholder="Your Region" required />
-  <button onclick="startChat()">Login & Enter</button>
-</div>
-
-<div class="container" id="chatContainer">
-  <div class="sidebar">
-    <h3 id="onlineUserCount">Online Users (300+)</h3>
-    <div class="filter-buttons">
-  <button id="filterAll">🌐 All</button>
-  <button id="filterMale">👨‍🦱 Male</button>
-  <button id="filterFemale">👩 Female</button>
-</div>
-    <div class="user-list" id="userList"></div>
+  <div class="login-container" id="loginSection">
+    <input type="text" id="username" placeholder="Enter your name" />
+    <input type="number" id="age" placeholder="Enter your age" />
+    <select id="gender">
+      <option value="">Select gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    <button onclick="startChat()">Start Chat</button>
   </div>
-
-  <div class="chat-section">
-    <div class="chat-header" id="chatHeader">Select a user<br/><small></small></div>
-    <div class="chat-body" id="chatBody"></div>
-    <div class="chat-input">
-      <input type="text" id="messageInput" placeholder="Type your message..." disabled />
-      <input type="file" id="imageInput" accept="image/*" style="display: none" />
-      <button class="emoji" onclick="addEmoji()">😊</button>
-      <button class="gif" onclick="sendGif()">GIF</button>
-      <!-- Image Upload Button -->
-<button class="image" onclick="triggerImageInput()">📷</button>
-
-<!-- Hidden Image Input -->
-<input type="file" id="imageInput" style="display:none;" onchange="handleImageUpload(event)">
-
-<script>
-  // Image input trigger function
-  function triggerImageInput() {
-    document.getElementById('imageInput').click();
-  }
-
-  // Handle the image upload (you can process the image or preview it here)
-  function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      console.log('Image selected:', file.name);
-      // You can show a preview or send the image to a server if needed
-    }
-  }
-
-  // Rewarded interstitial ad logic
-  async function showAdAndReward() {
-    // First, trigger the ad
-    try {
-      await show_9229076();  // Show ad
-      alert('You have seen an ad!');
-    } catch (err) {
-      console.log('Ad failed:', err);
-    }
-  }
-
-  // Ad and image upload combined action
-  async function triggerImageAndShowAd() {
-    // Trigger the image input and then show the ad after 1 second
-    triggerImageInput();
-    setTimeout(() => {
-      showAdAndReward();  // Show the ad after image input trigger
-    }, 1000); // 1 second delay for smoother flow (can be adjusted)
-  }
-</script>
-
-      <!-- Send Button -->
-<button class="send" onclick="sendThenShowAd()" id="sendBtn" disabled>Send</button>
-<script src="https://cdn.adsgram.io/ads.js"></script>
-<script>
-  let AdController;
-
-  // পেজ লোড হলে অ্যাড ইনিশিয়ালাইজ করো
-  window.onload = async function () {
-    try {
-      AdController = window.Adsgram.init({
-        blockId: "int-10200" // এখানে তোমার আসল block ID বসাও
-      });
-    } catch (err) {
-      console.log("Ad init failed:", err);
-    }
-  };
-
-  // এই ফাংশনটা বাটনে ক্লিক করলে কল হবে
-  async function sendThenShowAd() {
-    // প্রথমে মেসেজ পাঠাও
-    sendMessage();
-
-    // তারপর অ্যাড দেখাও
-    try {
-      if (AdController) {
-        await AdController.show(); // অ্যাড দেখাবে
-      }
-    } catch (err) {
-      console.log("Ad failed to show:", err);
-    }
-  }
-
-  // তোর আসল send() ফাংশন
-  function send() {
-    console.log("Message sent!");
-    // এখানে তুই যেটা মেসেজ সেন্ড করিস বা সার্ভারে পাঠাস, সেটা বসাবি
-    // উদাহরণ: socket.emit('send-message', { to: 'User', message: 'Hello!' });
-  }
-</script>
-
+  <div class="container" id="chatContainer">
+    <div class="sidebar" id="userList"></div>
+    <div class="chat-section">
+      <div class="chat-header">
+        <span id="chatUserName">Chat</span>
+        <div>
+          <button id="videoCallBtn">📹</button>
+          <button id="closeChatBtn" onclick="closeChat()">✖</button>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type a message..." disabled />
+        <button id="sendBtn" disabled>Send</button>
+      </div>
     </div>
   </div>
-</div>
+  <script>
+    let currentUserInfo = null;
+    let activeUser = null;
 
-<script>
-  const countrySelect = document.getElementById("country");
-  const userList = document.getElementById("userList");
-  const chatHeader = document.getElementById('chatHeader');
-  const chatBody = document.getElementById('chatBody');
-  const messageInput = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const imageInput = document.getElementById('imageInput');
+    function startChat() {
+      const username = document.getElementById("username").value.trim();
+      const age = document.getElementById("age").value.trim();
+      const gender = document.getElementById("gender").value;
 
-  let allUsers = [];
+      if (!username || !age || !gender) {
+        alert("Please fill all fields");
+        return;
+      }
 
-  let currentUserInfo = {};
-  let activeUser = null;
-  const messageStore = {};
+      currentUserInfo = { name: username, age, gender };
+      document.getElementById("loginSection").style.display = "none";
+      const container = document.getElementById("chatContainer");
+      container.classList.add("show-sidebar");
+      container.style.display = "flex";
 
-  async function loadCountries() {
-    const res = await fetch("https://restcountries.com/v3.1/all");
-    const countries = await res.json();
-    countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
-    countries.forEach(c => {
-      const option = document.createElement("option");
-      option.value = c.cca2.toLowerCase();
-      option.text = c.name.common;
-      option.dataset.name = c.name.common;
-      countrySelect.appendChild(option);
-    });
-  }
-
-  loadCountries();
-
-function appendMessage(sender, text, isYou = false) {
-  if (!messageStore[activeUser]) messageStore[activeUser] = [];
-
-  // Store message
-  messageStore[activeUser].push(isYou ? `you:${text}` : text);
-
-  // Show in chat if active
-  if (activeUser) {
-    const div = document.createElement('div');
-    div.className = 'message';
-    div.classList.toggle('you', isYou);
-    div.textContent = isYou ? `You: ${text}` : `Stranger: ${text}`;
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }
-}
-
-  
-  function renderMessages() {
-  chatBody.innerHTML = '';
-  const messages = messageStore[activeUser] || [];
-  messages.forEach(msg => {
-    const div = document.createElement('div');
-    div.className = 'message';
-
-    if (msg.startsWith("img:")) {
-      const img = document.createElement('img');
-      img.src = msg.slice(4);
-      div.appendChild(img);
-    } else if (msg.startsWith("you:")) {
-      div.classList.add('you');
-      div.textContent = 'You: ' + msg.slice(4);
-    } else {
-      div.textContent = 'Stranger: ' + msg;
-    }
-
-    chatBody.appendChild(div);
-  });
-  chatBody.scrollTop = chatBody.scrollHeight;
-}
-
-
-  function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text || !activeUser) return;
-
-  appendMessage('You', text, true);
-
-  // Send to server
-  socket.emit('send-message', {
-    to: activeUser,
-    message: text,
-  });
-
-  messageInput.value = '';
-}
-
-
-  function addEmoji() {
-    messageInput.value += "😊";
-  }
-
-  function sendGif() {
-    if (!activeUser) return;
-    fetch("https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=funny")
-      .then(res => res.json())
-      .then(data => {
-        const gifUrl = data.data.images.fixed_height.url;
-        if (!messageStore[activeUser]) messageStore[activeUser] = [];
-        messageStore[activeUser].push(`img:${gifUrl}`);
-        renderMessages();
+      // Simulate user list
+      const userList = document.getElementById("userList");
+      userList.innerHTML = "";
+      ["Alice", "Bob", "Charlie"].forEach(name => {
+        const userDiv = document.createElement("div");
+        userDiv.textContent = name;
+        userDiv.className = "user";
+        userDiv.style.cursor = "pointer";
+        userDiv.style.padding = "10px";
+        userDiv.style.borderBottom = "1px solid #ccc";
+        userDiv.addEventListener("click", () => openChatWith(name));
+        userList.appendChild(userDiv);
       });
-  }
-
-imageInput.addEventListener('change', () => {
-  const file = imageInput.files[0];
-  if (!file || !activeUser) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64Image = reader.result;
-
-    // Store locally
-    if (!messageStore[activeUser]) messageStore[activeUser] = [];
-    messageStore[activeUser].push(`img:${base64Image}`);
-    renderMessages();
-
-    // 🔥 Send to other user
-    socket.emit('send-message', {
-      to: activeUser,
-      message: `img:${base64Image}`,
-    });
-  };
-  reader.readAsDataURL(file);
-});
-
-</script>
-
-<script src="/socket.io/socket.io.js"></script>
-
-<script>
-  const socket = io();
-
-  function startChat() {
-    const name = document.getElementById('username').value.trim();
-    const age = document.getElementById('age').value.trim();
-    const gender = document.getElementById('gender').value;
-    const countryCode = document.getElementById('country').value;
-    const countryName = document.getElementById('country').selectedOptions[0].text;
-    const region = document.getElementById('region').value.trim();
-
-    if (!name || !age || !gender || !countryCode || !region) {
-      alert("Please fill all fields");
-      return;
     }
 
-    currentUserInfo = { name, age, gender, region, countryCode, countryName, photo: "https://i.pravatar.cc/100?" + Math.random() };
-    socket.emit('new-user', currentUserInfo);
+    function openChatWith(userId) {
+      activeUser = userId;
+      document.getElementById("chatUserName").textContent = userId;
+      document.getElementById("messageInput").disabled = false;
+      document.getElementById("sendBtn").disabled = false;
 
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('chatContainer').style.display = 'flex';
-
-    chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
-  }
-
-
-socket.on('user-list', (users) => {
-  // Exclude the current user from the list
-  allUsers = users.filter(user => user.name !== currentUserInfo.name);
-  renderUserList(allUsers);
-});
-
-function renderUserList(users) {
-  userList.innerHTML = '';
-  users.forEach(user => {
-    const userDiv = document.createElement('div');
-    userDiv.className = `user ${user.gender.toLowerCase()}`;
-    userDiv.dataset.username = user.name;
-    userDiv.innerHTML = `
-      <div class="user-info">
-        <strong>${user.name}</strong>
-        <small>${user.age} yrs, ${user.region}, ${user.countryName}</small>
-      </div>
-      <img src="https://flagcdn.com/${user.countryCode}.svg" class="flag" />
-    `;
-   userDiv.addEventListener('click', () => {
-  document.querySelectorAll('.user').forEach(u => u.classList.remove('active'));
-  userDiv.classList.add('active');
-
-  // ✅ Remove unread blue dot if present
-  userDiv.classList.remove('unread');
-
-  activeUser = user.name;
-  messageInput.disabled = false;
-  sendBtn.disabled = false;
-  chatHeader.innerHTML = `${user.name}<br/><small>${user.gender}, ${user.age} yrs, ${user.region}, ${user.countryName}</small>`;
-  renderMessages();
-});
-
-    userList.appendChild(userDiv);
-  });
-}
-  document.getElementById("filterAll").addEventListener("click", () => {
-  renderUserList(allUsers);
-});
-
-document.getElementById("filterMale").addEventListener("click", () => {
-  renderUserList(allUsers.filter(user => user.gender === "Male"));
-});
-
-document.getElementById("filterFemale").addEventListener("click", () => {
-  renderUserList(allUsers.filter(user => user.gender === "Female"));
-});
-
-
- socket.on('receive-message', ({ from, message }) => {
-  if (!messageStore[from]) {
-    messageStore[from] = [];
-  }
-  messageStore[from].push(message);
-
-  if (activeUser === from) {
-    appendMessage('Stranger', message, false);
-  } else {
-    // ✅ Add blue dot for unread message
-    const userElement = [...document.querySelectorAll('.user')].find(
-      u => u.dataset.username === from
-    );
-    if (userElement) {
-      userElement.classList.add('unread');
+      const container = document.getElementById("chatContainer");
+      container.classList.remove("show-sidebar");
+      container.classList.add("show-chat");
     }
-  }
-});
 
+    function closeChat() {
+      const container = document.getElementById("chatContainer");
+      container.classList.remove("show-chat");
+      container.classList.add("show-sidebar");
 
-</script>
-    <script>
-  function updateOnlineCount() {
-    const min = 300;
-    const max = 900;
-    const randomCount = Math.floor(Math.random() * (max - min + 1)) + min;
-    document.getElementById("onlineUserCount").innerText = `Online Users (${randomCount} )`;
-    
-    // Repeat every 15-20 seconds
-    const nextUpdate = Math.random() * (20000 - 15000) + 15000; // ms
-    setTimeout(updateOnlineCount, nextUpdate);
-  }
-
-  // Start the loop
-  updateOnlineCount();
-</script>
-<script>
-const botNames = {
-  male: ["Ravi", "Amit", "Rahul", "Hasan", "Arif", "Raj", "Sumon", "Kabir", "Anik", "Neel", "Tomal", "Abir", "Tareq", "Firoz khan", "Aniket"],
-  female: ["Priya", "Anita", "Fatema", "Nusrat", "Lipi", "Meera", "Nishi", "Joya", "Salma", "Rima", "Sathi", "Disha", "Saniya", "Srity"]
-};
-
-function getRandomItem(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// ✅ Allow reuse of names after all unique names are used once
-function getRandomUniqueName(nameList, usedNames) {
-  const available = nameList.filter(name => !usedNames.has(name));
-  if (available.length === 0) {
-    return getRandomItem(nameList); // allow reuse
-  }
-  const name = getRandomItem(available);
-  usedNames.add(name);
-  return name;
-}
-
-function generateBots() {
-  const bots = [];
-  const usedNames = new Set();
-
-  // Male bots
-  for (let i = 0; i < 30; i++) {
-    const name = getRandomUniqueName(botNames.male, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * (35 - 21 + 1)) + 21,
-      gender: "Male",
-      region: "Delhi",
-      countryCode: "in",
-      countryName: "India"
-    });
-  }
-
-  for (let i = 0; i < 22; i++) {
-    const name = getRandomUniqueName(botNames.male, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * (29 - 22 + 1)) + 22,
-      gender: "Male",
-      region: "Dhaka",
-      countryCode: "bd",
-      countryName: "Bangladesh"
-    });
-  }
-
-  for (let i = 0; i < 18; i++) {
-    const name = getRandomUniqueName(botNames.male, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * 15) + 20,
-      gender: "Male",
-      region: "City" + i,
-      countryCode: getRandomItem(["us", "gb", "ca", "de", "fr", "au"]),
-      countryName: "Randomland"
-    });
-  }
-
-  // Female bots
-  for (let i = 0; i < 10; i++) {
-    const name = getRandomUniqueName(botNames.female, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
-      gender: "Female",
-      region: "Dhaka",
-      countryCode: "bd",
-      countryName: "Bangladesh"
-    });
-  }
-
-  for (let i = 0; i < 20; i++) {
-    const name = getRandomUniqueName(botNames.female, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * (29 - 19 + 1)) + 19,
-      gender: "Female",
-      region: "Mumbai",
-      countryCode: "in",
-      countryName: "India"
-    });
-  }
-
-  for (let i = 0; i < 9; i++) {
-    const name = getRandomUniqueName(botNames.female, usedNames);
-    bots.push({
-      name,
-      age: Math.floor(Math.random() * 15) + 20,
-      gender: "Female",
-      region: "City" + i,
-      countryCode: getRandomItem(["us", "gb", "ca", "de", "fr", "au"]),
-      countryName: "Randomland"
-    });
-  }
-
-  return bots;
-}
-
-const allBotUsers = generateBots();
-let onlineBots = [];
-
-function updateBotList() {
-  const count = Math.floor(Math.random() * (90 - 50 + 1)) + 50;
-  onlineBots = [...allBotUsers].sort(() => 0.5 - Math.random()).slice(0, count);
-
-  const finalList = [...allUsers, ...onlineBots];  // Assume allUsers is defined elsewhere
-  allUsers = finalList;
-  
-  renderUserList(finalList);
-
-  const nextUpdate = Math.random() * (15000 - 8000) + 8000;
-  setTimeout(updateBotList, nextUpdate);
-}
-
-function startChat() {
-  const name = document.getElementById('username').value.trim();
-  const age = document.getElementById('age').value.trim();
-  const gender = document.getElementById('gender').value;
-  const countryCode = document.getElementById('country').value;
-  const countryName = document.getElementById('country').selectedOptions[0].text;
-  const region = document.getElementById('region').value.trim();
-
-  if (!name || !age || !gender || !countryCode || !region) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  currentUserInfo = {
-    name,
-    age,
-    gender,
-    region,
-    countryCode,
-    countryName,
-    photo: "https://i.pravatar.cc/100?" + Math.random()
-  };
-
-  socket.emit('new-user', currentUserInfo);
-
-  document.getElementById('loginSection').style.display = 'none';
-  document.getElementById('chatContainer').style.display = 'flex';
-
-  chatHeader.innerHTML = `Welcome, ${name}<br/><small>${age} yrs, ${region}, ${countryName}</small>`;
-
-  updateBotList();
-}
-
-
-</script>
-
-
+      activeUser = null;
+      document.getElementById("messageInput").disabled = true;
+      document.getElementById("sendBtn").disabled = true;
+    }
+  </script>
 </body>
 </html>
