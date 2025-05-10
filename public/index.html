@@ -293,26 +293,38 @@ body {
       });
     }
 
-    function openChatWith(userId) {
-      activeUser = userId;
-      document.getElementById("chatUserName").textContent = userId;
-      document.getElementById("messageInput").disabled = false;
-      document.getElementById("sendBtn").disabled = false;
+    function openChatWithUser(username) {
+  activeUser = username;
+  document.querySelector('.sidebar').style.display = 'none';
+  document.querySelector('.chat-section').style.display = 'flex';
+  document.getElementById('messageInput').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
 
-      const container = document.getElementById("chatContainer");
-      container.classList.remove("show-sidebar");
-      container.classList.add("show-chat");
-    }
+  const user = allUsers.find(u => u.name === username);
+  if (user) {
+    document.getElementById('chatUserName').textContent = user.name;
+    document.getElementById('chatUserInfo').textContent = `${user.gender}, ${user.age}`;
+  }
 
-    function closeChat() {
-      const container = document.getElementById("chatContainer");
-      container.classList.remove("show-chat");
-      container.classList.add("show-sidebar");
+  // Mark messages as read
+  delete unreadMessages[username];
+  renderMessages();
+  renderUserList(allUsers); // Update unread dot
 
-      activeUser = null;
-      document.getElementById("messageInput").disabled = true;
-      document.getElementById("sendBtn").disabled = true;
-    }
+  document.getElementById("videoCallBtn").style.display = "inline-block";
+}
+
+function closeChat() {
+  activeUser = null;
+  document.querySelector('.sidebar').style.display = 'block';
+  document.querySelector('.chat-section').style.display = 'none';
+  document.getElementById('chatUserName').textContent = "Select a user";
+  document.getElementById('chatUserInfo').textContent = "";
+  document.getElementById('messageInput').disabled = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById("videoCallBtn").style.display = "none";
+}
+
   </script>
 </body>
 </html>
