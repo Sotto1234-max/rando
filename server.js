@@ -14,63 +14,71 @@ const io = new Server(server, {
   }
 });
 
-// Create 40 male bots
+// Simulated bots
 const maleBots = Array.from({ length: 40 }, (_, i) => ({
   id: `male_bot_${i + 1}`,
   name: `Raj${i + 1}`,
   gender: "male"
 }));
 
-// Create 25 female bots
 const femaleBots = Array.from({ length: 25 }, (_, i) => ({
   id: `female_bot_${i + 1}`,
   name: `Neha${i + 1}`,
   gender: "female"
 }));
 
-// Store connected real users
-const realUsers = {}; // socket.id -> user info
+// Real connected users
+let users = []; // array of { id, name, gender }
+let realUsers = {}; // socket.id -> user info
 
-// Helper: shuffle array and pick n items
 function getRandomBots(botArray, count) {
   const shuffled = [...botArray].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-// When a user connects
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("user_login", (user) => {
+  // Real user registration
+  socket.on("register", (user) => {
+    user.id = socket.id;
+    users.push(user);
     realUsers[socket.id] = user;
-    console.log("Real user logged in:", user);
+    io.emit("userList", users);
 
-    // Decide which bots to respond
+    // Trigger bots
     let botsToUse = [];
     if (user.gender === "female") {
-      botsToUse = getRandomBots(maleBots, 6 + Math.floor(Math.random() * 2)); // 6–7 male bots
+      botsToUse = getRandomBots(maleBots, 6 + Math.floor(Math.random() * 2));
     } else if (user.gender === "male") {
-      botsToUse = getRandomBots(femaleBots, 6 + Math.floor(Math.random() * 2)); // 6–7 female bots
+      botsToUse = getRandomBots(femaleBots, 6 + Math.floor(Math.random() * 2));
     }
 
-    // Simulate messages from bots
+    // Simulate bot greetings
     botsToUse.forEach((bot, index) => {
       setTimeout(() => {
-        socket.emit("receive_message", {
-          from: bot.name,
-          text: `Hi ${user.name}, I'm ${bot.name}! 😊`
+        socket.emit("receiveMessage", {
+          message: `Hi ${user.name}, I'm ${bot.name}! 😊`,
+          from: bot.name
         });
       }, 1000 + index * 1000);
     });
   });
 
+  // Handle messaging between users
+  socket.on("sendMessage", ({ to, message, from }) => {
+    io.to(to).emit("receiveMessage", { message, from });
+  });
+
+  // Handle disconnection
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    users = users.filter(u => u.id !== socket.id);
     delete realUsers[socket.id];
+    io.emit("userList", users);
   });
 });
 
-// Start server
 const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
