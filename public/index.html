@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -10,171 +9,190 @@
       box-sizing: border-box;
     }
 
-```
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #e0e8f0;
-}
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #e0e8f0;
+    }
 
-.login-container,
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
+    .login-container,
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-.login-container {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 350px;
-}
+    .login-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 350px;
+    }
 
-.login-container input,
-.login-container select,
-.login-container button {
-  width: 100%;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-}
+    .login-container input,
+    .login-container select,
+    .login-container button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-.login-container button {
-  background: #007bff;
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+    .login-container button {
+      background: #007bff;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-.login-container button:hover {
-  background: #0056b3;
-}
+    .login-container button:hover {
+      background: #0056b3;
+    }
 
-.container {
-  display: none;
-  flex-direction: row;
-  height: 100vh;
-}
+    .container {
+      display: none;
+      flex-direction: row;
+      height: 100vh;
+    }
 
-.sidebar {
-  width: 300px;
-  background: #ffffff;
-  border-right: 1px solid #ddd;
-  padding: 1rem;
-  overflow-y: auto;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-}
+    .sidebar {
+      width: 300px;
+      background: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 1rem;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    }
 
-.user {
-  background: #f5f5f5;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
+    #filterButtons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
 
-.user:hover {
-  background: #e0eaff;
-}
+    #filterButtons button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
 
-.chat-section {
-  flex: 1;
-  display: none;
-  flex-direction: column;
-  background: #f9f9f9;
-}
+    #filterButtons button:hover {
+      background-color: #0056b3;
+    }
 
-.chat-header {
-  background: #007bff;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-}
+    .user {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
 
-.chat-header button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  padding: 6px 10px;
-  margin-left: 5px;
-  font-size: 16px;
-  border-radius: 6px;
-  cursor: pointer;
-}
+    .user:hover {
+      background: #e0eaff;
+    }
 
-.chat-header button:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
+    .chat-section {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      background: #f9f9f9;
+    }
 
-.chat-messages {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  background-color: #ffffff;
-}
+    .chat-header {
+      background: #007bff;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
 
-.chat-input {
-  display: flex;
-  padding: 1rem;
-  border-top: 1px solid #ddd;
-  background: white;
-}
+    .chat-header button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      margin-left: 5px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-.chat-input input {
-  flex: 1;
-  padding: 0.75rem;
-  margin-right: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
+    .chat-header button:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
 
-.chat-input button {
-  padding: 0.75rem 1rem;
-  background: #28a745;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      background-color: #ffffff;
+    }
 
-.chat-input button:disabled {
-  background: #aaa;
-  cursor: not-allowed;
-}
+    .chat-input {
+      display: flex;
+      padding: 1rem;
+      border-top: 1px solid #ddd;
+      background: white;
+    }
 
-.container.show-chat .sidebar {
-  display: none;
-}
+    .chat-input input {
+      flex: 1;
+      padding: 0.75rem;
+      margin-right: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
 
-.container.show-chat .chat-section {
-  display: flex;
-}
+    .chat-input button {
+      padding: 0.75rem 1rem;
+      background: #28a745;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-.container.show-sidebar .sidebar {
-  display: block;
-  width: 100%;
-}
+    .chat-input button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
 
-.container.show-sidebar .chat-section {
-  display: none;
-}
-```
+    .container.show-chat .sidebar {
+      display: none;
+    }
 
+    .container.show-chat .chat-section {
+      display: flex;
+    }
+
+    .container.show-sidebar .sidebar {
+      display: block;
+      width: 100%;
+    }
+
+    .container.show-sidebar .chat-section {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -191,7 +209,15 @@ body {
   </div>
 
   <div class="container" id="chatContainer">
-    <div class="sidebar" id="userList"></div>
+    <div class="sidebar">
+      <div id="filterButtons">
+        <button onclick="filterUsers('all')">All</button>
+        <button onclick="filterUsers('male')">Male</button>
+        <button onclick="filterUsers('female')">Female</button>
+        <button onclick="filterUsers('inbox')">Inbox</button>
+      </div>
+      <div id="userList"></div>
+    </div>
     <div class="chat-section">
       <div class="chat-header">
         <span id="chatUserName">Chat</span>
@@ -211,6 +237,7 @@ body {
   <script>
     let currentUserInfo = null;
     let activeUser = null;
+    let allUsers = [];
 
     function startChat() {
       const username = document.getElementById("username").value.trim();
@@ -228,13 +255,34 @@ body {
       container.classList.add("show-sidebar");
       container.style.display = "flex";
 
+      // Sample users with gender and inbox status
+      allUsers = [
+        { name: "Alice", gender: "female", hasInbox: true },
+        { name: "Bob", gender: "male", hasInbox: false },
+        { name: "Charlie", gender: "male", hasInbox: true },
+        { name: "Diana", gender: "female", hasInbox: false },
+      ];
+
+      filterUsers("all");
+    }
+
+    function filterUsers(type) {
       const userList = document.getElementById("userList");
       userList.innerHTML = "";
-      ["Alice", "Bob", "Charlie"].forEach(name => {
+
+      const filtered = allUsers.filter(user => {
+        if (type === "all") return true;
+        if (type === "male") return user.gender === "male";
+        if (type === "female") return user.gender === "female";
+        if (type === "inbox") return user.hasInbox;
+        return true;
+      });
+
+      filtered.forEach(user => {
         const userDiv = document.createElement("div");
-        userDiv.textContent = name;
+        userDiv.textContent = user.name;
         userDiv.className = "user";
-        userDiv.addEventListener("click", () => openChatWith(name));
+        userDiv.addEventListener("click", () => openChatWith(user.name));
         userList.appendChild(userDiv);
       });
     }
@@ -260,6 +308,5 @@ body {
       document.getElementById("sendBtn").disabled = true;
     }
   </script>
-
 </body>
 </html>
