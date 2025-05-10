@@ -211,10 +211,10 @@
   <div class="container" id="chatContainer">
     <div class="sidebar">
       <div id="filterButtons">
-        <button onclick="filterUsers('all')">All</button>
-        <button onclick="filterUsers('male')">Male</button>
-        <button onclick="filterUsers('female')">Female</button>
-        <button onclick="filterUsers('inbox')">Inbox</button>
+        <button onclick="filterUsers('all')">🌐All</button>
+        <button onclick="filterUsers('male')">👨‍🦱Male</button>
+        <button onclick="filterUsers('female')">👩Female</button>
+        <button onclick="filterUsers('inbox')">📥Inbox</button>
       </div>
       <div id="userList"></div>
     </div>
@@ -222,13 +222,26 @@
       <div class="chat-header">
         <span id="chatUserName">Chat</span>
         <div>
-          <button id="videoCallBtn">📹</button>
+          <button 
+  id="videoCallBtn"
+  onclick="show_9229076().then(() => {
+    window.open('https://www.febspot.com/auth/google/?ref=725136', '_blank');
+    alert('Sign in with Gmail to start video chat');
+  })" 
+  style="display:none; background-color: #ff9800; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+  📹 Video Call
+</button>
+
           <button onclick="closeChat()">✖</button>
         </div>
       </div>
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input">
         <input type="text" id="messageInput" placeholder="Type a message..." disabled />
+        <button class="image" onclick="triggerImageInput()">📷</button>
+
+<input type="file" id="imageInput" style="display:none;" onchange="handleImageUpload(event)">
+
         <button id="sendBtn" disabled>Send</button>
       </div>
     </div>
