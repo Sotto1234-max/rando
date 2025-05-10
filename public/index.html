@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,9 +7,10 @@
   <title>Random Chat</title>
   <style>
     * {
-  box-sizing: border-box;
-}
+      box-sizing: border-box;
+    }
 
+```
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -61,7 +63,6 @@ body {
   display: none;
   flex-direction: row;
   height: 100vh;
-  width: 100%;
 }
 
 .sidebar {
@@ -100,6 +101,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .chat-header button {
@@ -107,6 +110,7 @@ body {
   border: none;
   color: white;
   padding: 6px 10px;
+  margin-left: 5px;
   font-size: 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -128,7 +132,6 @@ body {
   padding: 1rem;
   border-top: 1px solid #ddd;
   background: white;
-  flex-wrap: wrap;
 }
 
 .chat-input input {
@@ -137,7 +140,6 @@ body {
   margin-right: 0.5rem;
   border-radius: 8px;
   border: 1px solid #ccc;
-  min-width: 0;
 }
 
 .chat-input button {
@@ -171,45 +173,8 @@ body {
 .container.show-sidebar .chat-section {
   display: none;
 }
+```
 
-/* 🔧 MEDIA QUERIES FOR MOBILE RESPONSIVENESS */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #ddd;
-    box-shadow: none;
-  }
-
-  .chat-section {
-    flex: 1;
-    display: none;
-    height: 100%;
-  }
-
-  .chat-header {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-
-  .chat-input {
-    flex-direction: column;
-  }
-
-  .chat-input input {
-    width: 100%;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .chat-input button {
-    width: 100%;
-  }
-}
   </style>
 </head>
 <body>
@@ -226,30 +191,12 @@ body {
   </div>
 
   <div class="container" id="chatContainer">
-    <div class="sidebar"> <h3 id="onlineUserCount">Online Users (300+)</h3>
-    <div class="filter-buttons">
-  <button id="filterAll">🌐 All</button>
-  <button id="filterMale">👨‍🦱 Male</button>
-  <button id="filterFemale">👩 Female</button>
-  <button id="filterInbox">
-  📥 Inbox <span id="inboxBadge" style="display:none; background:red; color:white; border-radius:10px; padding:2px 6px; font-size:12px; margin-left:5px;">0</span>
-</button>
-</div>
- <div id="userList"></div>
+    <div class="sidebar" id="userList"></div>
     <div class="chat-section">
       <div class="chat-header">
         <span id="chatUserName">Chat</span>
         <div>
-          <button 
-  id="videoCallBtn"
-  onclick="show_9229076().then(() => {
-    window.open('https://www.febspot.com/auth/google/?ref=725136', '_blank');
-    alert('Sign in with Gmail to start video chat');
-  })" 
-  style="display:none; background-color: #ff9800; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 14px;">
-  📹 Video Call
-</button>
-
+          <button id="videoCallBtn">📹</button>
           <button onclick="closeChat()">✖</button>
         </div>
       </div>
@@ -259,7 +206,6 @@ body {
         <button id="sendBtn" disabled>Send</button>
       </div>
     </div>
-  </div>
   </div>
 
   <script>
@@ -293,38 +239,27 @@ body {
       });
     }
 
-    function openChatWithUser(username) {
-  activeUser = username;
-  document.querySelector('.sidebar').style.display = 'none';
-  document.querySelector('.chat-section').style.display = 'flex';
-  document.getElementById('messageInput').disabled = false;
-  document.getElementById('sendBtn').disabled = false;
+    function openChatWith(userId) {
+      activeUser = userId;
+      document.getElementById("chatUserName").textContent = userId;
+      document.getElementById("messageInput").disabled = false;
+      document.getElementById("sendBtn").disabled = false;
 
-  const user = allUsers.find(u => u.name === username);
-  if (user) {
-    document.getElementById('chatUserName').textContent = user.name;
-    document.getElementById('chatUserInfo').textContent = `${user.gender}, ${user.age}`;
-  }
+      const container = document.getElementById("chatContainer");
+      container.classList.remove("show-sidebar");
+      container.classList.add("show-chat");
+    }
 
-  // Mark messages as read
-  delete unreadMessages[username];
-  renderMessages();
-  renderUserList(allUsers); // Update unread dot
+    function closeChat() {
+      const container = document.getElementById("chatContainer");
+      container.classList.remove("show-chat");
+      container.classList.add("show-sidebar");
 
-  document.getElementById("videoCallBtn").style.display = "inline-block";
-}
-
-function closeChat() {
-  activeUser = null;
-  document.querySelector('.sidebar').style.display = 'block';
-  document.querySelector('.chat-section').style.display = 'none';
-  document.getElementById('chatUserName').textContent = "Select a user";
-  document.getElementById('chatUserInfo').textContent = "";
-  document.getElementById('messageInput').disabled = true;
-  document.getElementById('sendBtn').disabled = true;
-  document.getElementById("videoCallBtn").style.display = "none";
-}
-
+      activeUser = null;
+      document.getElementById("messageInput").disabled = true;
+      document.getElementById("sendBtn").disabled = true;
+    }
   </script>
+
 </body>
 </html>
