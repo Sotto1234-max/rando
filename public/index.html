@@ -11,20 +11,27 @@
 <body class="bg-gray-100 font-sans">
 
   <!-- Login Form -->
-  <div id="login" class="flex items-center justify-center h-screen">
-    <div class="bg-white shadow-md p-8 rounded-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
-      <input id="name" type="text" placeholder="Name" class="w-full mb-2 px-4 py-2 border rounded"/>
-      <input id="age" type="number" placeholder="Age" class="w-full mb-2 px-4 py-2 border rounded"/>
-      <select id="gender" class="w-full mb-2 px-4 py-2 border rounded">
-        <option value="">Select Gender</option>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      <input id="photo" type="file" accept="image/*" class="w-full mb-4"/>
-      <button onclick="login()" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Login</button>
-    </div>
+  <!-- Login Form -->
+<div id="login" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+  <div class="bg-white shadow-lg p-8 rounded-3xl w-full max-w-md">
+    <h2 class="text-3xl font-semibold mb-6 text-center text-indigo-600">Login</h2>
+    
+    <input id="name" type="text" placeholder="Your Name" class="w-full mb-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+    
+    <input id="age" type="number" placeholder="Your Age" class="w-full mb-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+    
+    <select id="gender" class="w-full mb-4 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+      <option value="">Select Gender</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    
+    <input id="photo" type="file" accept="image/*" class="w-full mb-6 p-2 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+    
+    <button onclick="login()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl w-full text-lg font-semibold shadow-md hover:bg-indigo-500 transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500">Login</button>
   </div>
+</div>
+
 
   <!-- Main App -->
   <div id="app" class="hidden h-screen flex flex-col">
