@@ -24,16 +24,11 @@ io.on('connection', (socket) => {
   // Remove any existing user with the same name
   users = users.filter(u => u.name !== user.name);
   users.push(user);
-io.emit('userList', users);
 
-  // Show all users except self (bots included)
-  const visibleUsers = users.filter(u => {
-    if (u.isBot) return true;
-    return u.id !== socket.id;
-  });
-  io.emit('userList', visibleUsers);
+  // ✅ Emit full user list, including bots and self
+  io.emit('userList', users);
 
-  // Trigger bots to message the user
+  // ✅ Trigger bot messages if needed
   handleBotMessages(user, socket);
 });
 
