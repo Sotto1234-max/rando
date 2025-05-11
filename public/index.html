@@ -57,13 +57,11 @@
           <span id="chat-user-name" class="font-semibold"></span>
         </div>
         <div class="flex items-center gap-2">
-  <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50">Video Call</button>
-  <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
-</div>
+          <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50">Video Call</button>
+          <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+        </div>
       </div>
-      <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2">
-        <!-- Messages appear here -->
-      </div>
+      <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
       <div class="p-3 border-t flex gap-2 items-center bg-white">
         <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border px-4 py-2 rounded"/>
         <input id="image-input" type="file" accept="image/*" class="hidden" />
@@ -73,199 +71,179 @@
     </div>
 
   </div>
+
 <script src="/socket.io/socket.io.js"></script>
-  <script>
-    let currentUser = null;
-    let selectedUser = null;
-    const users = [];
-    const messages = {};
+<script>
+  let currentUser = null;
+  let selectedUser = null;
+  const users = [];
+  const messages = {};
 
- function login() {
-  const name = document.getElementById('name').value;
-  const age = document.getElementById('age').value;
-  const gender = document.getElementById('gender').value;
-  const photo = document.getElementById('photo').files[0];
+  const socket = io();
 
-  if (!name || !age || !gender || !photo) {
-    alert('Please fill out all fields.');
-    return;
-  }
+  function login() {
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const gender = document.getElementById('gender').value;
+    const photo = document.getElementById('photo').files[0];
 
-  const reader = new FileReader();
-  reader.onload = () => {
-    currentUser = { name, age, gender, photo: reader.result };
-
-    // Update UI
-    document.getElementById('user-name').textContent = name;
-    document.getElementById('user-photo').src = reader.result;
-    document.getElementById('login').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-
-    socket.emit('login', currentUser); // ✅ Emit to server
-  };
-  reader.readAsDataURL(photo);
-}
-
-    function addDummyUsers() {
-      const dummy = [
-        { name: 'Anik', gender: 'male', photo: 'https://i.pravatar.cc/150?img=10' },
-        { name: 'Lima', gender: 'female', photo: 'https://i.pravatar.cc/150?img=20' },
-        { name: 'Jamal', gender: 'male', photo: 'https://i.pravatar.cc/150?img=30' },
-        { name: 'Tania', gender: 'female', photo: 'https://i.pravatar.cc/150?img=40' }
-      ];
-      users.push(...dummy);
-      dummy.forEach(user => {
-        messages[user.name] = [];
-      });
+    if (!name || !age || !gender || !photo) {
+      alert('Please fill out all fields.');
+      return;
     }
 
-    function renderUsers(filter = 'all') {
-      const list = document.getElementById('user-list');
-      list.innerHTML = '';
-      users.forEach(user => {
-        if (user.name === currentUser.name) return;
-        if (filter !== 'all' && user.gender !== filter) return;
-
-        const unread = messages[user.name]?.some(msg => !msg.read);
-        list.innerHTML += `
-          <div onclick="openChat('${user.name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
-            <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
-            <span class="flex-1">${user.name}</span>
-            ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
-          </div>
-        `;
-      });
-    }
-
-    const socket = io();
-
-
-// To send message:
-socket.emit('sendMessage', { from: currentUser.name, to: selectedUser.name, text: 'Hello!' });
-
-// To receive:
-socket.on('receiveMessage', (msg) => {
-  if (!messages[msg.from]) messages[msg.from] = [];
-  msg.read = false;
-  messages[msg.from].push(msg);
-
-  // If chat is open with this user, show it
-  if (selectedUser && selectedUser.name === msg.from) {
-    msg.read = true;
-    renderMessages();
-  } else {
-    renderUsers(); // show unread dot
-  }
-});
-
-
-// To update user list:
-socket.on('userList', (userList) => {
-  users.length = 0;
-  users.push(...userList);
-  renderUsers(); // Refresh UI
-});
-
-
-    function filterUsers(type) {
-      renderUsers(type);
-    }
-
-    function showInbox() {
-  const list = document.getElementById('user-list');
-  list.innerHTML = '';
-
-  for (let name in messages) {
-    const user = users.find(u => u.name === name);
-
-    if (!user) continue; // ✅ Skip if user is not found (maybe they logged out)
-
-    const unread = messages[name].some(m => !m.read);
-
-    list.innerHTML += `
-      <div onclick="openChat('${name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
-        <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
-        <span class="flex-1">${name}</span>
-        ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
-      </div>
-    `;
-  }
-}
-
-
-    function openChat(userName) {
-      selectedUser = users.find(u => u.name === userName);
-      document.getElementById('chat-user-name').textContent = selectedUser.name;
-      document.getElementById('chat-user-photo').src = selectedUser.photo;
-
-      document.getElementById('user-panel').classList.add('hidden');
-      document.getElementById('chat-body').classList.remove('hidden');
-
-      messages[userName]?.forEach(msg => msg.read = true);
-      renderMessages();
-    }
-
-    function renderMessages() {
-      const box = document.getElementById('chat-messages');
-      box.innerHTML = '';
-      const chat = messages[selectedUser.name] || [];
-      chat.forEach(msg => {
-        const align = msg.from === currentUser.name ? 'justify-end text-right' : 'justify-start text-left';
-        const color = msg.from === currentUser.name ? 'bg-blue-100' : 'bg-gray-200';
-        box.innerHTML += `
-          <div class="flex ${align}">
-            <div class="${color} p-2 rounded max-w-xs">
-              ${msg.image ? `<img src="${msg.image}" class="max-w-full mb-1"/>` : ''}
-              ${msg.text || ''}
-            </div>
-          </div>
-        `;
-      });
-      box.scrollTop = box.scrollHeight;
-    }
-
-    document.getElementById('image-input').addEventListener('change', function () {
-      const file = this.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        messages[selectedUser.name].push({ from: currentUser.name, image: reader.result, read: true });
-        renderMessages();
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function sendMessage() {
-  const input = document.getElementById('message-input');
-  const text = input.value.trim();
-  if (!text) return;
-  if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
-
-  const msg = { from: currentUser.name, to: selectedUser.name, text, read: true };
-  messages[selectedUser.name].push(msg);
-  input.value = '';
-  renderMessages();
-
-  // ✅ Send to server
-  socket.emit('sendMessage', msg);
-}
-
+    const reader = new FileReader();
     reader.onload = () => {
-  const imageMsg = { from: currentUser.name, to: selectedUser.name, image: reader.result, read: true };
-  if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
-  messages[selectedUser.name].push(imageMsg);
-  renderMessages();
+      currentUser = { name, age, gender, photo: reader.result };
 
-  socket.emit('sendMessage', imageMsg); // ✅ send image message
-};
+      document.getElementById('user-name').textContent = name;
+      document.getElementById('user-photo').src = reader.result;
+      document.getElementById('login').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
 
+      socket.emit('login', currentUser);
 
+      // 👇 Add for local test
+      addDummyUsers();
+      renderUsers();
+    };
+    reader.readAsDataURL(photo);
+  }
 
-    function closeChat() {
-      document.getElementById('chat-body').classList.add('hidden');
-      document.getElementById('user-panel').classList.remove('hidden');
+  function addDummyUsers() {
+    const dummy = [
+      { name: 'Anik', gender: 'male', photo: 'https://i.pravatar.cc/150?img=10' },
+      { name: 'Lima', gender: 'female', photo: 'https://i.pravatar.cc/150?img=20' },
+      { name: 'Jamal', gender: 'male', photo: 'https://i.pravatar.cc/150?img=30' },
+      { name: 'Tania', gender: 'female', photo: 'https://i.pravatar.cc/150?img=40' }
+    ];
+    users.push(...dummy);
+    dummy.forEach(user => {
+      messages[user.name] = [];
+    });
+  }
+
+  function renderUsers(filter = 'all') {
+    const list = document.getElementById('user-list');
+    list.innerHTML = '';
+    users.forEach(user => {
+      if (user.name === currentUser.name) return;
+      if (filter !== 'all' && user.gender !== filter) return;
+
+      const unread = messages[user.name]?.some(msg => !msg.read);
+      list.innerHTML += `
+        <div onclick="openChat('${user.name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
+          <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
+          <span class="flex-1">${user.name}</span>
+          ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
+        </div>
+      `;
+    });
+  }
+
+  socket.on('receiveMessage', (msg) => {
+    if (!messages[msg.from]) messages[msg.from] = [];
+    msg.read = false;
+    messages[msg.from].push(msg);
+
+    if (selectedUser && selectedUser.name === msg.from) {
+      msg.read = true;
+      renderMessages();
+    } else {
       renderUsers();
     }
-  </script>
-  
+  });
+
+  socket.on('userList', (userList) => {
+    users.length = 0;
+    users.push(...userList);
+    renderUsers();
+  });
+
+  function filterUsers(type) {
+    renderUsers(type);
+  }
+
+  function showInbox() {
+    const list = document.getElementById('user-list');
+    list.innerHTML = '';
+
+    for (let name in messages) {
+      const user = users.find(u => u.name === name);
+      if (!user) continue;
+      const unread = messages[name].some(m => !m.read);
+      list.innerHTML += `
+        <div onclick="openChat('${name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
+          <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
+          <span class="flex-1">${name}</span>
+          ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
+        </div>
+      `;
+    }
+  }
+
+  function openChat(userName) {
+    selectedUser = users.find(u => u.name === userName);
+    document.getElementById('chat-user-name').textContent = selectedUser.name;
+    document.getElementById('chat-user-photo').src = selectedUser.photo;
+
+    document.getElementById('user-panel').classList.add('hidden');
+    document.getElementById('chat-body').classList.remove('hidden');
+
+    messages[userName]?.forEach(msg => msg.read = true);
+    renderMessages();
+  }
+
+  function renderMessages() {
+    const box = document.getElementById('chat-messages');
+    box.innerHTML = '';
+    const chat = messages[selectedUser.name] || [];
+    chat.forEach(msg => {
+      const align = msg.from === currentUser.name ? 'justify-end text-right' : 'justify-start text-left';
+      const color = msg.from === currentUser.name ? 'bg-blue-100' : 'bg-gray-200';
+      box.innerHTML += `
+        <div class="flex ${align}">
+          <div class="${color} p-2 rounded max-w-xs">
+            ${msg.image ? `<img src="${msg.image}" class="max-w-full mb-1"/>` : ''}
+            ${msg.text || ''}
+          </div>
+        </div>
+      `;
+    });
+    box.scrollTop = box.scrollHeight;
+  }
+
+  document.getElementById('image-input').addEventListener('change', function () {
+    const file = this.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageMsg = { from: currentUser.name, to: selectedUser.name, image: reader.result, read: true };
+      if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
+      messages[selectedUser.name].push(imageMsg);
+      renderMessages();
+      socket.emit('sendMessage', imageMsg);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function sendMessage() {
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
+
+    const msg = { from: currentUser.name, to: selectedUser.name, text, read: true };
+    messages[selectedUser.name].push(msg);
+    input.value = '';
+    renderMessages();
+    socket.emit('sendMessage', msg);
+  }
+
+  function closeChat() {
+    document.getElementById('chat-body').classList.add('hidden');
+    document.getElementById('user-panel').classList.remove('hidden');
+    renderUsers();
+  }
+</script>
 </body>
 </html>
