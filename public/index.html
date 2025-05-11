@@ -135,7 +135,7 @@
     const list = document.getElementById('user-list');
     list.innerHTML = '';
     users.forEach(user => {
-      if (user.name === currentUser.name) return;
+      //if (user.name === currentUser.name) return;
       if (filter !== 'all' && user.gender !== filter) return;
 
       const unread = messages[user.name]?.some(msg => !msg.read);
