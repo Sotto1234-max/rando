@@ -7,68 +7,19 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Serve static files from "public"
+// Serve static files from "public" folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Online users list
-let users = [];
+// ✅ Helper: Generate random ID
+const randomId = () => Math.random().toString(36).substring(2, 10);
 
-io.on('connection', (socket) => {
-  console.log('✅ A user connected:', socket.id);
-
-  // Handle login
- socket.on('login', (user) => {
-  user.id = socket.id;
-  user.isBot = false;
-
-  // Remove duplicate names if any
-  users = users.filter(u => u.name !== user.name);
-  users.push(user);
-
-  // Emit full list to the newly logged-in user only
-  socket.emit('userList', users);
-
-  // Broadcast updated list to everyone else (excluding the new user)
-  socket.broadcast.emit('userList', users);
-
-  handleBotMessages(user, socket);
-});
-
-
-  // Handle messaging
-  socket.on('sendMessage', (msg) => {
-    const targetUser = users.find(u => u.name === msg.to);
-    if (targetUser) {
-      io.to(targetUser.id).emit('receiveMessage', msg);
-      console.log(`📨 Message from ${msg.from} to ${msg.to}`);
-    }
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    const user = users.find(u => u.id === socket.id);
-    if (user) {
-      console.log('❌ User disconnected:', user.name);
-    }
-    users = users.filter(u => u.id !== socket.id);
-    io.emit('userList', users);
-  });
-  const randomId = () => Math.random().toString(36).substring(2, 10);
-
+// ✅ Predefined bot messages
 const botMessages = [
-  "Video chat?",
-  "Telegram ID?",
-  "Where are you from?",
-  "Hi!",
-  "Are you free now?",
-  "I'm alone, let's chat!",
-  "Wanna talk?",
-  "You look nice!",
-  "Send me your pic?",
-  "Are you single?"
+  "Video chat?", "Telegram ID?", "Where are you from?", "Hi!", "Are you free now?",
+  "I'm alone, let's chat!", "Wanna talk?", "You look nice!", "Send me your pic?", "Are you single?"
 ];
 
-// Sample Asian-style names
+// ✅ Sample names
 const maleNames = [
   "Amit", "Raj", "Hiro", "Ken", "Ali", "Farhan", "Wei", "Minh", "Ravi", "Sung",
   "Nikhil", "Anwar", "Sanjay", "Bao", "Takeshi", "Dinesh", "Jun", "Hasan", "Yuki", "Kumar"
@@ -79,29 +30,85 @@ const femaleNames = [
   "Rani", "Kavita", "Jia", "Lea", "Sumaiya"
 ];
 
-// Create bots (no socket.id because they're fake)
-const maleBots = maleNames.map((name, i) => ({
+// ✅ Generate bots once at server start
+const maleBots = maleNames.map(name => ({
   id: `bot_male_${randomId()}`,
   name,
   gender: 'male',
   isBot: true
 }));
 
-const femaleBots = femaleNames.map((name, i) => ({
+const femaleBots = femaleNames.map(name => ({
   id: `bot_female_${randomId()}`,
   name,
   gender: 'female',
   isBot: true
 }));
 
-// Combine bots into users list
+// ✅ Global user list (bots + real users)
 let users = [...maleBots, ...femaleBots];
 
+// ✅ Socket connection handler
+io.on('connection', (socket) => {
+  console.log('✅ A user connected:', socket.id);
 
+  // 🔐 Login handler
+  socket.on('login', (user) => {
+    user.id = socket.id;
+    user.isBot = false;
+
+    // Remove any existing user with the same name
+    users = users.filter(u => u.name !== user.name);
+    users.push(user);
+
+    // Send user list to new user and all others
+    socket.emit('userList', users);
+    socket.broadcast.emit('userList', users);
+
+    // Simulate bots sending messages (optional)
+    handleBotMessages(user, socket);
+  });
+
+  // 📩 Message handler
+  socket.on('sendMessage', (msg) => {
+    const targetUser = users.find(u => u.name === msg.to);
+    if (targetUser) {
+      io.to(targetUser.id).emit('receiveMessage', msg);
+      console.log(`📨 Message from ${msg.from} to ${msg.to}`);
+    }
+  });
+
+  // ❌ Disconnect handler
+  socket.on('disconnect', () => {
+    const user = users.find(u => u.id === socket.id);
+    if (user) {
+      console.log('❌ User disconnected:', user.name);
+    }
+    users = users.filter(u => u.id !== socket.id);
+    io.emit('userList', users);
+  });
 });
 
-// Start server
+// 🧠 Optional: Simulate bots chatting
+function handleBotMessages(realUser, socket) {
+  const bots = users.filter(u => u.isBot);
+  const randomBot = bots[Math.floor(Math.random() * bots.length)];
+
+  if (randomBot) {
+    setTimeout(() => {
+      const msg = {
+        from: randomBot.name,
+        to: realUser.name,
+        text: botMessages[Math.floor(Math.random() * botMessages.length)]
+      };
+      socket.emit('receiveMessage', msg);
+      console.log(`🤖 Bot ${msg.from} messaged ${msg.to}`);
+    }, 3000);
+  }
+}
+
+// 🚀 Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
