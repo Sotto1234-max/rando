@@ -17,16 +17,25 @@ io.on('connection', (socket) => {
   console.log('✅ A user connected:', socket.id);
 
   // Handle login
-  socket.on('login', (user) => {
-    user.id = socket.id;
+ socket.on('login', (user) => {
+  user.id = socket.id;
+  user.isBot = false; // Mark as human
 
-    // Prevent duplicate users with same name (optional)
-    users = users.filter(u => u.name !== user.name);
+  // Remove any existing user with the same name
+  users = users.filter(u => u.name !== user.name);
+  users.push(user);
 
-    users.push(user);
-    io.emit('userList', users);
-    console.log('👤 User logged in:', user.name);
+  // Show all users except self (bots included)
+  const visibleUsers = users.filter(u => {
+    if (u.isBot) return true;
+    return u.id !== socket.id;
   });
+  io.emit('userList', visibleUsers);
+
+  // Trigger bots to message the user
+  handleBotMessages(user, socket);
+});
+
 
   // Handle messaging
   socket.on('sendMessage', (msg) => {
