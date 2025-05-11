@@ -417,7 +417,10 @@ function sendPublicMessage() {
   const container = document.getElementById('public-chat-messages');
   const bubble = document.createElement('div');
   bubble.className = "bg-white/40 rounded-lg px-4 py-2 max-w-sm self-start";
-  bubble.textContent = msg.from + ": " + msg.text;
+
+  // ✅ ঠিকভাবে name ও message ধরো
+  bubble.textContent = msg.name + ": " + msg.message;
+
   container.appendChild(bubble);
   container.scrollTop = container.scrollHeight;
 });
