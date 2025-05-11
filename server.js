@@ -58,9 +58,9 @@ io.on('connection', (socket) => {
     handleBotMessages(user, socket);
   });
 
-  socket.on('publicMessage', (data) => {
-    io.emit('publicMessage', data); // broadcast to all clients
-  });
+  //socket.on('publicMessage', (data) => {
+    //io.emit('publicMessage', data); // broadcast to all clients
+  //});
 
   socket.on('sendMessage', (msg) => {
     const targetUser = users.find(u => u.name === msg.to);
