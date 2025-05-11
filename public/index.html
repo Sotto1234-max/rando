@@ -73,7 +73,7 @@
     </div>
 
   </div>
-
+<script src="/socket.io/socket.io.js"></script>
   <script>
     let currentUser = null;
     let selectedUser = null;
@@ -266,6 +266,6 @@ socket.on('userList', (userList) => {
       renderUsers();
     }
   </script>
-  <script src="/socket.io/socket.io.js"></script>
+  
 </body>
 </html>
