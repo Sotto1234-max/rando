@@ -59,7 +59,8 @@ io.on('connection', (socket) => {
 
     // Remove any existing user with the same name
     users = users.filter(u => u.name !== user.name);
-    users.push(user);
+    users = [user, ...users.filter(u => u.name !== user.name && !u.isBot), ...users.filter(u => u.isBot)];
+
 
     // Send user list to new user and all others
     socket.emit('userList', users);
