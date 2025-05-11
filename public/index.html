@@ -245,5 +245,65 @@
     renderUsers();
   }
 </script>
+  <script> function handleBotMessages(user, socket) {
+  const isMale = user.gender === 'male';
+  const botGroup = isMale ? femaleBots : maleBots;
+
+  // Randomly select 4–5 bots
+  const botsToMessage = botGroup.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+  botsToMessage.forEach((bot, index) => {
+    const delay = Math.floor(Math.random() * 10000) + 10000; // 10–20s
+
+    setTimeout(() => {
+      const message = botMessages[Math.floor(Math.random() * botMessages.length)];
+
+      const msg = {
+        from: bot.name,
+        to: user.name,
+        text: message,
+        read: false
+      };
+
+      // Save in memory (optional, handled on frontend too)
+      // Send message to real user
+      io.to(user.id).emit('receiveMessage', msg);
+    }, delay + index * 1000); // stagger slightly to avoid exact same timestamp
+  });
+}
+ </script>
+  <script> const randomId = () => Math.random().toString(36).substring(2, 10);
+
+const botMessages = [
+  "Video chat?",
+  "Telegram ID?",
+  "Where are you from?",
+  "Hi!",
+  "Are you free now?",
+  "I'm alone, let's chat!",
+  "Wanna talk?",
+  "You look nice!",
+  "Send me your pic?",
+  "Are you single?"
+];
+
+// Create bots (no socket.id because they're fake)
+const maleBots = Array.from({ length: 20 }, (_, i) => ({
+  id: `bot_male_${randomId()}`,
+  name: `M_Bot_${i + 1}`,
+  gender: 'male',
+  isBot: true
+}));
+
+const femaleBots = Array.from({ length: 15 }, (_, i) => ({
+  id: `bot_female_${randomId()}`,
+  name: `F_Bot_${i + 1}`,
+  gender: 'female',
+  isBot: true
+}));
+
+// Add bots to the global list (don't emit these yet)
+let users = [...maleBots, ...femaleBots];
+ </script>
 </body>
 </html>
