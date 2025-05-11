@@ -56,7 +56,10 @@
           <img id="chat-user-photo" class="w-8 h-8 rounded-full"/>
           <span id="chat-user-name" class="font-semibold"></span>
         </div>
-        <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+        <div class="flex items-center gap-2">
+  <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50">Video Call</button>
+  <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+</div>
       </div>
       <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2">
         <!-- Messages appear here -->
