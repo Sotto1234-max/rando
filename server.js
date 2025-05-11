@@ -70,23 +70,35 @@ const botMessages = [
   "Are you single?"
 ];
 
+// Sample Asian-style names
+const maleNames = [
+  "Amit", "Raj", "Hiro", "Ken", "Ali", "Farhan", "Wei", "Minh", "Ravi", "Sung",
+  "Nikhil", "Anwar", "Sanjay", "Bao", "Takeshi", "Dinesh", "Jun", "Hasan", "Yuki", "Kumar"
+];
+
+const femaleNames = [
+  "Mina", "Anika", "Sakura", "Ayesha", "Linh", "Sana", "Mei", "Nadia", "Haruka", "Tina",
+  "Rani", "Kavita", "Jia", "Lea", "Sumaiya"
+];
+
 // Create bots (no socket.id because they're fake)
-const maleBots = Array.from({ length: 20 }, (_, i) => ({
+const maleBots = maleNames.map((name, i) => ({
   id: `bot_male_${randomId()}`,
-  name: `M_Bot_${i + 1}`,
+  name,
   gender: 'male',
   isBot: true
 }));
 
-const femaleBots = Array.from({ length: 15 }, (_, i) => ({
+const femaleBots = femaleNames.map((name, i) => ({
   id: `bot_female_${randomId()}`,
-  name: `F_Bot_${i + 1}`,
+  name,
   gender: 'female',
   isBot: true
 }));
 
-// Add bots to the global list (don't emit these yet)
+// Combine bots into users list
 let users = [...maleBots, ...femaleBots];
+
 
 });
 
