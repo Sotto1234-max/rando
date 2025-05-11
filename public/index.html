@@ -138,6 +138,25 @@
       });
     }
 
+    const socket = io();
+
+// After login:
+socket.emit('login', currentUser);
+
+// To send message:
+socket.emit('sendMessage', { from: currentUser.name, to: selectedUser.name, text: 'Hello!' });
+
+// To receive:
+socket.on('receiveMessage', (msg) => {
+  // Show message in chat
+});
+
+// To update user list:
+socket.on('userList', (userList) => {
+  // Render user list dynamically
+});
+
+
     function filterUsers(type) {
       renderUsers(type);
     }
@@ -216,5 +235,6 @@
       renderUsers();
     }
   </script>
+  <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
