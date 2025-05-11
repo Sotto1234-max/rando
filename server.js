@@ -24,6 +24,7 @@ io.on('connection', (socket) => {
   // Remove any existing user with the same name
   users = users.filter(u => u.name !== user.name);
   users.push(user);
+io.emit('userList', users);
 
   // Show all users except self (bots included)
   const visibleUsers = users.filter(u => {
