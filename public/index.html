@@ -409,14 +409,11 @@ function sendPublicMessage() {
   input.value = '';
   container.scrollTop = container.scrollHeight;
 
+  // ✅ Correctly emit to server here
   socket.emit('publicMessage', { from: currentUser.name, text: message });
-  // Optional: send to server with socket.emit('publicMessage', { ... })
 }
-</script>
-  <script>
     
-
-    socket.on('publicMessage', (msg) => {
+   socket.on('publicMessage', (msg) => {
   const container = document.getElementById('public-chat-messages');
   const bubble = document.createElement('div');
   bubble.className = "bg-white/40 rounded-lg px-4 py-2 max-w-sm self-start";
@@ -424,6 +421,7 @@ function sendPublicMessage() {
   container.appendChild(bubble);
   container.scrollTop = container.scrollHeight;
 });
+
 
   </script>
 </body>
