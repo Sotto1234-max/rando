@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chat WebApp</title>
+  <title>Random Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src='//whephiwums.com/sdk.js' data-zone='9229076' data-sdk='show_9229076'></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -32,10 +34,10 @@
       <!-- Header -->
       <div class="bg-white shadow p-4 flex items-center justify-between">
         <div>
-          <button onclick="filterUsers('all')" class="mr-2 text-blue-500">All</button>
-          <button onclick="filterUsers('male')" class="mr-2 text-blue-500">Male</button>
-          <button onclick="filterUsers('female')" class="text-blue-500">Female</button>
-          <button onclick="showInbox()" class="ml-6 text-green-600">Inbox</button>
+          <button onclick="filterUsers('all')" class="mr-2 text-blue-500">🌐All</button>
+          <button onclick="filterUsers('male')" class="mr-2 text-blue-500">👨‍🦱Male</button>
+          <button onclick="filterUsers('female')" class="text-blue-500">👩Female</button>
+          <button onclick="showInbox()" class="ml-6 text-green-600">📥Inbox</button>
         </div>
         <div class="flex items-center gap-2">
           <img id="user-photo" class="w-8 h-8 rounded-full"/>
@@ -57,7 +59,10 @@
           <span id="chat-user-name" class="font-semibold"></span>
         </div>
         <div class="flex items-center gap-2">
-          <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50">Video Call</button>
+          <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50" onclick="show_9229076().then(() => {
+    window.open('https://www.febspot.com/auth/google/?ref=725136', '_blank');
+    alert('Sign in with Gmail to start video chat');
+  })">Video Call</button>
           <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
         </div>
       </div>
@@ -66,7 +71,7 @@
         <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border px-4 py-2 rounded"/>
         <input id="image-input" type="file" accept="image/*" class="hidden" />
         <button onclick="document.getElementById('image-input').click()" class="text-blue-500">📷</button>
-        <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+        <button onclick="sendThenShowAd()" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
       </div>
     </div>
 
@@ -287,5 +292,42 @@
   });
 }
  </script>
+  <script src="https://cdn.adsgram.io/ads.js"></script>
+<script>
+  let AdController;
+
+  // পেজ লোড হলে অ্যাড ইনিশিয়ালাইজ করো
+  window.onload = async function () {
+    try {
+      AdController = window.Adsgram.init({
+        blockId: "int-10200" // এখানে তোমার আসল block ID বসাও
+      });
+    } catch (err) {
+      console.log("Ad init failed:", err);
+    }
+  };
+
+  // এই ফাংশনটা বাটনে ক্লিক করলে কল হবে
+  async function sendThenShowAd() {
+    // প্রথমে মেসেজ পাঠাও
+    sendMessage();
+
+    // তারপর অ্যাড দেখাও
+    try {
+      if (AdController) {
+        await AdController.show(); // অ্যাড দেখাবে
+      }
+    } catch (err) {
+      console.log("Ad failed to show:", err);
+    }
+  }
+
+  // তোর আসল send() ফাংশন
+  function send() {
+    console.log("Message sent!");
+    // এখানে তুই যেটা মেসেজ সেন্ড করিস বা সার্ভারে পাঠাস, সেটা বসাবি
+    // উদাহরণ: socket.emit('send-message', { to: 'User', message: 'Hello!' });
+  }
+</script>
 </body>
 </html>
