@@ -401,16 +401,10 @@ function sendPublicMessage() {
   const message = input.value.trim();
   if (!message) return;
 
-  const container = document.getElementById('public-chat-messages');
-  const bubble = document.createElement('div');
-  bubble.className = "bg-white/40 rounded-lg px-4 py-2 max-w-sm self-start";
-  bubble.textContent = currentUser.name + ": " + message;
-  container.appendChild(bubble);
-  input.value = '';
-  container.scrollTop = container.scrollHeight;
-
-  // ✅ Correctly emit to server here
+  // ✅ শুধু সার্ভারে মেসেজ পাঠাও, DOM-এ নিজে থেকে মেসেজ অ্যাপেন্ড করো না
   socket.emit('publicMessage', { from: currentUser.name, text: message });
+
+  input.value = ''; // ইনপুট ক্লিয়ার করা হচ্ছে
 }
     
   socket.on('publicMessage', (msg) => {
