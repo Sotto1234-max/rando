@@ -19,16 +19,18 @@ io.on('connection', (socket) => {
   // Handle login
  socket.on('login', (user) => {
   user.id = socket.id;
-  user.isBot = false; // Mark as human
+  user.isBot = false;
 
-  // Remove any existing user with the same name
+  // Remove duplicate names if any
   users = users.filter(u => u.name !== user.name);
   users.push(user);
 
-  // ✅ Emit full user list, including bots and self
-  io.emit('userList', users);
+  // Emit full list to the newly logged-in user only
+  socket.emit('userList', users);
 
-  // ✅ Trigger bot messages if needed
+  // Broadcast updated list to everyone else (excluding the new user)
+  socket.broadcast.emit('userList', users);
+
   handleBotMessages(user, socket);
 });
 
