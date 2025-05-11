@@ -2,94 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chat WebApp</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#3B82F6',
-            accent: '#10B981',
-            light: '#F3F4F6'
-          }
-        }
-      }
-    }
-  </script>
 </head>
-<body class="bg-light font-sans">
+<body class="bg-gray-100 font-sans">
 
-<!-- Login Form -->
-<div id="login" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-white px-4">
-  <div class="bg-white shadow-2xl p-8 rounded-2xl w-full max-w-sm space-y-4">
-    <h2 class="text-3xl font-bold text-center text-primary">Random Chat</h2>
-    <input id="name" type="text" placeholder="Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
-    <input id="age" type="number" placeholder="Age" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
-    <select id="gender" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-      <option value="">Select Gender</option>
-      <option value="male">Male</option>
-      <option value="female">Female</option>
-    </select>
-    <input id="photo" type="file" accept="image/*" class="w-full px-4 py-2" />
-    <button onclick="login()" class="w-full py-3 rounded-lg bg-primary text-white font-semibold hover:bg-blue-600 transition">Login</button>
+  <!-- Login Form -->
+  <div id="login" class="flex items-center justify-center h-screen">
+    <div class="bg-white shadow-md p-8 rounded-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
+      <input id="name" type="text" placeholder="Name" class="w-full mb-2 px-4 py-2 border rounded"/>
+      <input id="age" type="number" placeholder="Age" class="w-full mb-2 px-4 py-2 border rounded"/>
+      <select id="gender" class="w-full mb-2 px-4 py-2 border rounded">
+        <option value="">Select Gender</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <input id="photo" type="file" accept="image/*" class="w-full mb-4"/>
+      <button onclick="login()" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Login</button>
+    </div>
   </div>
-</div>
 
-<!-- Main App -->
-<div id="app" class="hidden flex flex-col h-screen">
+  <!-- Main App -->
+  <div id="app" class="hidden h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="bg-white shadow-md p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-    <div class="space-x-2">
-      <button onclick="filterUsers('all')" class="text-primary font-medium">All</button>
-      <button onclick="filterUsers('male')" class="text-primary font-medium">Male</button>
-      <button onclick="filterUsers('female')" class="text-primary font-medium">Female</button>
-      <button onclick="showInbox()" class="text-accent font-medium ml-4">Inbox</button>
-    </div>
-    <div class="flex items-center gap-3">
-      <img id="user-photo" class="w-9 h-9 rounded-full border object-cover" />
-      <span id="user-name" class="font-medium text-gray-700"></span>
-    </div>
-  </header>
-
-  <!-- Body Wrapper -->
-  <div class="flex-1 flex overflow-hidden">
-
-    <!-- Sidebar / User List -->
-    <aside class="w-full sm:w-80 bg-white border-r overflow-y-auto p-4" id="user-panel">
-      <div id="user-list" class="space-y-2"></div>
-    </aside>
-
-    <!-- Chat Area -->
-    <main id="chat-body" class="hidden flex-1 flex flex-col bg-gray-50">
-
-      <!-- Chat Header -->
-      <div class="flex items-center justify-between p-4 bg-white shadow-md">
-        <div class="flex items-center gap-3">
-          <img id="chat-user-photo" class="w-10 h-10 rounded-full object-cover" />
-          <span id="chat-user-name" class="font-semibold text-lg"></span>
+    <!-- User Panel (Header + User List) -->
+    <div id="user-panel" class="flex-1 flex flex-col">
+      <!-- Header -->
+      <div class="bg-white shadow p-4 flex items-center justify-between">
+        <div>
+          <button onclick="filterUsers('all')" class="mr-2 text-blue-500">All</button>
+          <button onclick="filterUsers('male')" class="mr-2 text-blue-500">Male</button>
+          <button onclick="filterUsers('female')" class="text-blue-500">Female</button>
+          <button onclick="showInbox()" class="ml-6 text-green-600">Inbox</button>
         </div>
-        <div class="flex items-center gap-3">
-          <button class="text-accent border border-accent px-4 py-1 rounded-lg hover:bg-green-50 transition">Video Call</button>
-          <button onclick="closeChat()" class="text-red-500 text-xl font-bold">&times;</button>
+        <div class="flex items-center gap-2">
+          <img id="user-photo" class="w-8 h-8 rounded-full"/>
+          <span id="user-name" class="font-medium"></span>
         </div>
       </div>
 
-      <!-- Chat Messages -->
+      <!-- User List -->
+      <div id="user-list" class="w-full flex-1 bg-white p-4 overflow-y-auto border-t">
+        <!-- Users will be dynamically added here -->
+      </div>
+    </div>
+
+    <!-- Chat Body -->
+    <div id="chat-body" class="hidden absolute inset-0 flex flex-col bg-gray-50">
+      <div class="flex items-center justify-between bg-white p-3 border-b">
+        <div class="flex items-center gap-2">
+          <img id="chat-user-photo" class="w-8 h-8 rounded-full"/>
+          <span id="chat-user-name" class="font-semibold"></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-green-600 font-semibold border border-green-500 px-3 py-1 rounded hover:bg-green-50">Video Call</button>
+          <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+        </div>
+      </div>
       <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2"></div>
-
-      <!-- Chat Input -->
-      <div class="p-4 bg-white border-t flex items-center gap-3">
-        <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+      <div class="p-3 border-t flex gap-2 items-center bg-white">
+        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border px-4 py-2 rounded"/>
         <input id="image-input" type="file" accept="image/*" class="hidden" />
-        <button onclick="document.getElementById('image-input').click()" class="text-primary text-2xl">📷</button>
-        <button onclick="sendMessage()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Send</button>
+        <button onclick="document.getElementById('image-input').click()" class="text-blue-500">📷</button>
+        <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
       </div>
-    </main>
+    </div>
+
   </div>
-</div>
+
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
