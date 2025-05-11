@@ -57,6 +57,7 @@ io.on('connection', (socket) => {
 
     handleBotMessages(user, socket);
   });
+
   socket.on('publicMessage', (data) => {
     io.emit('publicMessage', data); // broadcast to all clients
   });
@@ -125,32 +126,31 @@ const publicBotMessages = [
   "Video call pe ajao", "Kaha se ho?", "How old are you?"
 ];
 
-// 🤖 Send random bot messages to public chat every 10-13 sec
-setInterval(() => {
-  const bots = users.filter(u => u.isBot && u.name); // Ensure bot has a valid name
-  const numBotsToSend = Math.floor(Math.random() * 2) + 2; // 2 to 3 bots
-  const selectedBots = bots.sort(() => 0.5 - Math.random()).slice(0, numBotsToSend);
+// ✅ Public Chat Bot message - realistic delay based
+function scheduleNextBotMessage() {
+  const bots = users.filter(u => u.isBot && u.name);
+  if (bots.length === 0) return;
 
-  selectedBots.forEach(bot => {
-    const selectedMessage = publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)];
+  const bot = bots[Math.floor(Math.random() * bots.length)];
+  const selectedMessage = publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)];
 
-    // Double check both name and message are valid
-    if (bot?.name && selectedMessage) {
-      const msg = {
-        name: bot.name,
-        message: selectedMessage
-      };
+  if (bot?.name && selectedMessage) {
+    const msg = {
+      name: bot.name,
+      message: selectedMessage
+    };
 
-      io.emit('publicMessage', msg);
-      console.log(`🤖 [Public] ${msg.name}: ${msg.message}`);
-    } else {
-      console.warn("⚠️ Skipped a bot due to missing name or message", bot);
-    }
-  });
+    io.emit('publicMessage', msg);
+    console.log(`🤖 [Public] ${msg.name}: ${msg.message}`);
+  }
 
-}, Math.floor(Math.random() * 3000) + 10000); // Every 10–13 seconds
+  // 🕒 Schedule next message between 10–25 seconds later
+  const nextDelay = Math.floor(Math.random() * 15000) + 10000;
+  setTimeout(scheduleNextBotMessage, nextDelay);
+}
 
-
+// 🔄 Start bot public message loop
+scheduleNextBotMessage();
 
 // 🚀 Start
 const PORT = process.env.PORT || 3000;
