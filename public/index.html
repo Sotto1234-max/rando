@@ -139,16 +139,25 @@
 
     const socket = io();
 
-// After login:
-socket.emit('login', currentUser);
 
 // To send message:
 socket.emit('sendMessage', { from: currentUser.name, to: selectedUser.name, text: 'Hello!' });
 
 // To receive:
 socket.on('receiveMessage', (msg) => {
-  // Show message in chat
+  if (!messages[msg.from]) messages[msg.from] = [];
+  msg.read = false;
+  messages[msg.from].push(msg);
+
+  // If chat is open with this user, show it
+  if (selectedUser && selectedUser.name === msg.from) {
+    msg.read = true;
+    renderMessages();
+  } else {
+    renderUsers(); // show unread dot
+  }
 });
+
 
 // To update user list:
 socket.on('userList', (userList) => {
@@ -163,20 +172,26 @@ socket.on('userList', (userList) => {
     }
 
     function showInbox() {
-      const list = document.getElementById('user-list');
-      list.innerHTML = '';
-      for (let name in messages) {
-        const user = users.find(u => u.name === name);
-        const unread = messages[name].some(m => !m.read);
-        list.innerHTML += `
-          <div onclick="openChat('${name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
-            <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
-            <span class="flex-1">${name}</span>
-            ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
-          </div>
-        `;
-      }
-    }
+  const list = document.getElementById('user-list');
+  list.innerHTML = '';
+
+  for (let name in messages) {
+    const user = users.find(u => u.name === name);
+
+    if (!user) continue; // ✅ Skip if user is not found (maybe they logged out)
+
+    const unread = messages[name].some(m => !m.read);
+
+    list.innerHTML += `
+      <div onclick="openChat('${name}')" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center gap-3">
+        <img src="${user.photo}" class="w-10 h-10 rounded-full"/>
+        <span class="flex-1">${name}</span>
+        ${unread ? '<span class="w-3 h-3 bg-blue-500 rounded-full"></span>' : ''}
+      </div>
+    `;
+  }
+}
+
 
     function openChat(userName) {
       selectedUser = users.find(u => u.name === userName);
@@ -220,15 +235,30 @@ socket.on('userList', (userList) => {
     });
 
     function sendMessage() {
-      const input = document.getElementById('message-input');
-      const text = input.value.trim();
-      if (!text) return;
-      if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
+  const input = document.getElementById('message-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
 
-      messages[selectedUser.name].push({ from: currentUser.name, text, read: true });
-      input.value = '';
-      renderMessages();
-    }
+  const msg = { from: currentUser.name, to: selectedUser.name, text, read: true };
+  messages[selectedUser.name].push(msg);
+  input.value = '';
+  renderMessages();
+
+  // ✅ Send to server
+  socket.emit('sendMessage', msg);
+}
+
+    reader.onload = () => {
+  const imageMsg = { from: currentUser.name, to: selectedUser.name, image: reader.result, read: true };
+  if (!messages[selectedUser.name]) messages[selectedUser.name] = [];
+  messages[selectedUser.name].push(imageMsg);
+  renderMessages();
+
+  socket.emit('sendMessage', imageMsg); // ✅ send image message
+};
+
+
 
     function closeChat() {
       document.getElementById('chat-body').classList.add('hidden');
