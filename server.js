@@ -10,17 +10,22 @@ const io = new Server(server);
 // Serve static files from "public"
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Store online users and their socket info
+// Online users list
 let users = [];
 
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+  console.log('✅ A user connected:', socket.id);
 
   // Handle login
   socket.on('login', (user) => {
     user.id = socket.id;
+
+    // Prevent duplicate users with same name (optional)
+    users = users.filter(u => u.name !== user.name);
+
     users.push(user);
-    io.emit('userList', users); // update all users
+    io.emit('userList', users);
+    console.log('👤 User logged in:', user.name);
   });
 
   // Handle messaging
@@ -28,19 +33,23 @@ io.on('connection', (socket) => {
     const targetUser = users.find(u => u.name === msg.to);
     if (targetUser) {
       io.to(targetUser.id).emit('receiveMessage', msg);
+      console.log(`📨 Message from ${msg.from} to ${msg.to}`);
     }
   });
 
-  // Disconnect handling
+  // Handle disconnection
   socket.on('disconnect', () => {
+    const user = users.find(u => u.id === socket.id);
+    if (user) {
+      console.log('❌ User disconnected:', user.name);
+    }
     users = users.filter(u => u.id !== socket.id);
     io.emit('userList', users);
-    console.log('User disconnected:', socket.id);
   });
 });
 
 // Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
