@@ -82,33 +82,41 @@
   const socket = io();
 
   function login() {
-    const name = document.getElementById('name').value;
-    const age = document.getElementById('age').value;
-    const gender = document.getElementById('gender').value;
-    const photo = document.getElementById('photo').files[0];
+  const name = document.getElementById('name').value;
+  const age = document.getElementById('age').value;
+  const gender = document.getElementById('gender').value;
+  const photo = document.getElementById('photo').files[0];
 
-    if (!name || !age || !gender || !photo) {
-      alert('Please fill out all fields.');
-      return;
-    }
+  if (!name || !age || !gender) {
+    alert('Please fill out all fields.');
+    return;
+  }
 
-    const reader = new FileReader();
+  const reader = new FileReader();
+
+  if (photo) {
     reader.onload = () => {
       currentUser = { name, age, gender, photo: reader.result };
-
-      document.getElementById('user-name').textContent = name;
-      document.getElementById('user-photo').src = reader.result;
-      document.getElementById('login').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-
-      socket.emit('login', currentUser);
-
-      // 👇 Add for local test
-      addDummyUsers();
-      renderUsers();
+      finalizeLogin();
     };
     reader.readAsDataURL(photo);
+  } else {
+    currentUser = { name, age, gender, photo: '' };
+    finalizeLogin();
   }
+
+  function finalizeLogin() {
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('user-photo').src = currentUser.photo || 'https://via.placeholder.com/40';
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+
+    socket.emit('login', currentUser);
+    addDummyUsers();
+    renderUsers();
+  }
+}
+
 
   function addDummyUsers() {
     const dummy = [
