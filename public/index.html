@@ -26,47 +26,49 @@
 
   <!-- Main App -->
   <div id="app" class="hidden h-screen flex flex-col">
-    <!-- Header -->
-    <div class="bg-white shadow p-4 flex items-center justify-between">
-      <div>
-        <button onclick="filterUsers('all')" class="mr-2 text-blue-500">All</button>
-        <button onclick="filterUsers('male')" class="mr-2 text-blue-500">Male</button>
-        <button onclick="filterUsers('female')" class="text-blue-500">Female</button>
-        <button onclick="showInbox()" class="ml-6 text-green-600">Inbox</button>
-      </div>
-      <div class="flex items-center gap-2">
-        <img id="user-photo" class="w-8 h-8 rounded-full"/>
-        <span id="user-name" class="font-medium"></span>
-      </div>
-    </div>
 
-    <!-- Content -->
-    <div class="flex flex-1 overflow-hidden">
+    <!-- User Panel (Header + User List) -->
+    <div id="user-panel" class="flex-1 flex flex-col">
+      <!-- Header -->
+      <div class="bg-white shadow p-4 flex items-center justify-between">
+        <div>
+          <button onclick="filterUsers('all')" class="mr-2 text-blue-500">All</button>
+          <button onclick="filterUsers('male')" class="mr-2 text-blue-500">Male</button>
+          <button onclick="filterUsers('female')" class="text-blue-500">Female</button>
+          <button onclick="showInbox()" class="ml-6 text-green-600">Inbox</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <img id="user-photo" class="w-8 h-8 rounded-full"/>
+          <span id="user-name" class="font-medium"></span>
+        </div>
+      </div>
+
       <!-- User List -->
-      <div id="user-list" class="w-1/3 bg-white p-4 overflow-y-auto border-r">
+      <div id="user-list" class="w-full flex-1 bg-white p-4 overflow-y-auto border-t">
         <!-- Users will be dynamically added here -->
       </div>
+    </div>
 
-      <!-- Chat Body -->
-      <div id="chat-body" class="flex-1 bg-gray-50 hidden flex-col justify-between">
-        <div class="flex items-center justify-between bg-white p-3 border-b">
-          <div class="flex items-center gap-2">
-            <img id="chat-user-photo" class="w-8 h-8 rounded-full"/>
-            <span id="chat-user-name" class="font-semibold"></span>
-          </div>
-          <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+    <!-- Chat Body -->
+    <div id="chat-body" class="flex-1 bg-gray-50 hidden flex flex-col justify-between">
+      <div class="flex items-center justify-between bg-white p-3 border-b">
+        <div class="flex items-center gap-2">
+          <img id="chat-user-photo" class="w-8 h-8 rounded-full"/>
+          <span id="chat-user-name" class="font-semibold"></span>
         </div>
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2">
-          <!-- Messages appear here -->
-        </div>
-        <div class="p-3 border-t flex gap-2 items-center bg-white">
-          <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border px-4 py-2 rounded"/>
-          <input id="image-input" type="file" accept="image/*" class="hidden" />
-          <button onclick="document.getElementById('image-input').click()" class="text-blue-500">📷</button>
-          <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
-        </div>
+        <button onclick="closeChat()" class="text-red-500 text-lg font-bold">X</button>
+      </div>
+      <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2">
+        <!-- Messages appear here -->
+      </div>
+      <div class="p-3 border-t flex gap-2 items-center bg-white">
+        <input id="message-input" type="text" placeholder="Type a message" class="flex-1 border px-4 py-2 rounded"/>
+        <input id="image-input" type="file" accept="image/*" class="hidden" />
+        <button onclick="document.getElementById('image-input').click()" class="text-blue-500">📷</button>
+        <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -95,7 +97,6 @@
         document.getElementById('login').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
 
-        // Dummy Users
         users.push(currentUser);
         addDummyUsers();
         renderUsers();
@@ -159,7 +160,7 @@
       document.getElementById('chat-user-name').textContent = selectedUser.name;
       document.getElementById('chat-user-photo').src = selectedUser.photo;
 
-      document.getElementById('user-list').classList.add('hidden');
+      document.getElementById('user-panel').classList.add('hidden');
       document.getElementById('chat-body').classList.remove('hidden');
 
       messages[userName]?.forEach(msg => msg.read = true);
@@ -208,7 +209,7 @@
 
     function closeChat() {
       document.getElementById('chat-body').classList.add('hidden');
-      document.getElementById('user-list').classList.remove('hidden');
+      document.getElementById('user-panel').classList.remove('hidden');
       renderUsers();
     }
   </script>
