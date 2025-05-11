@@ -409,11 +409,12 @@ function sendPublicMessage() {
   input.value = '';
   container.scrollTop = container.scrollHeight;
 
+  socket.emit('publicMessage', { from: currentUser.name, text: message });
   // Optional: send to server with socket.emit('publicMessage', { ... })
 }
 </script>
   <script>
-    socket.emit('publicMessage', { from: currentUser.name, text: message });
+    
 
     socket.on('publicMessage', (msg) => {
   const container = document.getElementById('public-chat-messages');
