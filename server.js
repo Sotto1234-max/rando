@@ -45,8 +45,11 @@ const femaleBots = femaleNames.map(name => ({
   isBot: true
 }));
 
-// ✅ Global user list (bots + real users)
-let users = [...maleBots, ...femaleBots];
+// ✅ Master list of all bots
+const allBots = [...maleBots, ...femaleBots];
+
+// ✅ Active users (real + visible bots)
+let users = [];
 
 // ✅ Socket connection handler
 io.on('connection', (socket) => {
@@ -57,16 +60,12 @@ io.on('connection', (socket) => {
     user.id = socket.id;
     user.isBot = false;
 
-    // Remove any existing user with the same name
     users = users.filter(u => u.name !== user.name);
-    users = [user, ...users.filter(u => u.name !== user.name && !u.isBot), ...users.filter(u => u.isBot)];
+    users = [user, ...users];
 
-
-    // Send user list to new user and all others
     socket.emit('userList', users);
     socket.broadcast.emit('userList', users);
 
-    // Simulate bots sending messages (optional)
     handleBotMessages(user, socket);
   });
 
@@ -90,23 +89,38 @@ io.on('connection', (socket) => {
   });
 });
 
-// 🧠 Optional: Simulate bots chatting
+// 🧠 Bot Message Simulator (on user login)
 function handleBotMessages(realUser, socket) {
   const bots = users.filter(u => u.isBot);
-  const randomBot = bots[Math.floor(Math.random() * bots.length)];
+  if (bots.length === 0) return;
 
-  if (randomBot) {
-    setTimeout(() => {
-      const msg = {
-        from: randomBot.name,
-        to: realUser.name,
-        text: botMessages[Math.floor(Math.random() * botMessages.length)]
-      };
-      socket.emit('receiveMessage', msg);
-      console.log(`🤖 Bot ${msg.from} messaged ${msg.to}`);
-    }, 3000);
-  }
+  const randomBot = bots[Math.floor(Math.random() * bots.length)];
+  setTimeout(() => {
+    const msg = {
+      from: randomBot.name,
+      to: realUser.name,
+      text: botMessages[Math.floor(Math.random() * botMessages.length)]
+    };
+    socket.emit('receiveMessage', msg);
+    console.log(`🤖 Bot ${msg.from} messaged ${msg.to}`);
+  }, 3000);
 }
+
+// 🔄 Bot appear/disappear every 2–3 minutes
+setInterval(() => {
+  const numToShow = Math.floor(Math.random() * 2) + 5; // 5 to 6 bots
+  const shuffled = allBots.sort(() => 0.5 - Math.random());
+  const selectedBots = shuffled.slice(0, numToShow);
+
+  // Remove existing bots
+  users = users.filter(u => !u.isBot);
+
+  // Add new bots
+  users = [...users, ...selectedBots];
+
+  io.emit('userList', users);
+  console.log(`🔁 Updated bots (${numToShow} bots shown)`);
+}, Math.floor(Math.random() * 60000) + 120000); // Every 2–3 mins
 
 // 🚀 Start the server
 const PORT = process.env.PORT || 3000;
