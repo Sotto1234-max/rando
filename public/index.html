@@ -152,7 +152,9 @@ socket.on('receiveMessage', (msg) => {
 
 // To update user list:
 socket.on('userList', (userList) => {
-  // Render user list dynamically
+  users.length = 0;
+  users.push(...userList);
+  renderUsers(); // Refresh UI
 });
 
 
