@@ -127,20 +127,21 @@ const publicBotMessages = [
 
 // 🤖 Send random bot messages to public chat every 10-13 sec
 setInterval(() => {
-  const bots = users.filter(u => u.isBot);
-  const numBotsToSend = Math.floor(Math.random() * 2) + 2; // 2 to 3 bots
-  const selectedBots = bots.sort(() => 0.5 - Math.random()).slice(0, numBotsToSend);
+  const bots = users.filter(u => u.isBot); // Filter out the bots
+  const numBotsToSend = Math.floor(Math.random() * 2) + 2; // 2 to 3 random bots to send messages
+  const selectedBots = bots.sort(() => 0.5 - Math.random()).slice(0, numBotsToSend); // Shuffle and pick bots
 
   selectedBots.forEach(bot => {
+    const message = publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)]; // Select random message
     const msg = {
       name: bot.name,
-      message: publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)]
+      message: message
     };
-    io.emit('publicMessage', msg);
+    io.emit('publicMessage', msg); // Send to public chat
     console.log(`🤖 [Public] ${msg.name}: ${msg.message}`);
   });
 
-}, Math.floor(Math.random() * 3000) + 10000); // every 10–13 seconds
+}, Math.floor(Math.random() * 3000) + 10000); // Random interval between 10 to 13 seconds
 
 
 
