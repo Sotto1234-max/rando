@@ -127,21 +127,28 @@ const publicBotMessages = [
 
 // 🤖 Send random bot messages to public chat every 10-13 sec
 setInterval(() => {
-  const bots = users.filter(u => u.isBot); // Filter out the bots
-  const numBotsToSend = Math.floor(Math.random() * 2) + 2; // 2 to 3 random bots to send messages
-  const selectedBots = bots.sort(() => 0.5 - Math.random()).slice(0, numBotsToSend); // Shuffle and pick bots
+  const bots = users.filter(u => u.isBot && u.name); // Ensure bot has a valid name
+  const numBotsToSend = Math.floor(Math.random() * 2) + 2; // 2 to 3 bots
+  const selectedBots = bots.sort(() => 0.5 - Math.random()).slice(0, numBotsToSend);
 
   selectedBots.forEach(bot => {
-    const message = publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)]; // Select random message
-    const msg = {
-      name: bot.name,
-      message: message
-    };
-    io.emit('publicMessage', msg); // Send to public chat
-    console.log(`🤖 [Public] ${msg.name}: ${msg.message}`);
+    const selectedMessage = publicBotMessages[Math.floor(Math.random() * publicBotMessages.length)];
+
+    // Double check both name and message are valid
+    if (bot?.name && selectedMessage) {
+      const msg = {
+        name: bot.name,
+        message: selectedMessage
+      };
+
+      io.emit('publicMessage', msg);
+      console.log(`🤖 [Public] ${msg.name}: ${msg.message}`);
+    } else {
+      console.warn("⚠️ Skipped a bot due to missing name or message", bot);
+    }
   });
 
-}, Math.floor(Math.random() * 3000) + 10000); // Random interval between 10 to 13 seconds
+}, Math.floor(Math.random() * 3000) + 10000); // Every 10–13 seconds
 
 
 
