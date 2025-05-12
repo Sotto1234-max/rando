@@ -239,7 +239,7 @@
     renderUsers(type);
   }
 
-  function showInbox() {
+ function showInbox() {
   const list = document.getElementById('user-list');
   list.innerHTML = '';
 
@@ -251,7 +251,7 @@
     
     list.innerHTML += `
       <div onclick="openChat('${user.name}')" 
-           class="flex items-center justify-between p-4 bg-white/30 rounded-2xl shadow hover:shadow-lg transition duration-200 cursor-pointer">
+           class="flex items-center justify-between p-4 bg-white/10 backdrop-blur-sm rounded-2xl shadow hover:shadow-lg transition duration-200 cursor-pointer">
         <div class="flex items-center gap-4">
           <img src="${user.photo}" class="w-12 h-12 rounded-full object-cover border" />
           <div>
@@ -264,6 +264,7 @@
     `;
   }
 }
+
 
   function openChat(userName) {
     selectedUser = users.find(u => u.name === userName);
