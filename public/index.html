@@ -14,7 +14,7 @@
   <!-- Login Form -->
 <div id="login" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 px-4">
   <div class="backdrop-blur-md bg-white/30 shadow-2xl border border-white/20 p-8 rounded-3xl w-full max-w-md text-white">
-    <h2 class="text-4xl font-bold mb-6 text-center drop-shadow-sm">Welcome Back</h2>
+    <h2 class="text-4xl font-bold mb-6 text-center drop-shadow-sm">Random chat</h2>
 
     <div class="mb-4 relative">
       <input id="name" type="text" placeholder="Your Name" class="w-full pl-12 pr-4 py-3 bg-white/20 text-white placeholder-white border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-white transition" />
@@ -59,7 +59,7 @@
         <button onclick="filterUsers('male')" class="text-white font-medium hover:underline">👨‍🦱 Male</button>
         <button onclick="filterUsers('female')" class="text-white font-medium hover:underline">👩 Female</button>
         <button onclick="showInbox()" class="ml-4 text-green-200 font-semibold hover:underline">📥 Inbox</button>
-        <button onclick="showPublicChat()" class="ml-4 text-blue-200 font-semibold hover:underline">💬 Chat</button>
+        <button onclick="showPublicChat()" class="ml-4 text-blue-200 font-semibold hover:underline">💬Global chat</button>
       </div>
       <div class="flex items-center gap-3">
         <img id="user-photo" class="w-9 h-9 rounded-full border border-white shadow-sm object-cover" />
@@ -99,10 +99,10 @@
 
     <!-- Chat Input -->
     <div class="p-4 border-t border-white/20 bg-white/20 backdrop-blur-md flex gap-3 items-center">
-      <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 bg-white/10 text-black placeholder-white border border-white/30 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white" />
+      <input id="message-input" type="text" placeholder="Type a message..." class="flex-1 bg-white/10 text-white placeholder-white border border-white/30 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white" />
       <input id="image-input" type="file" accept="image/*" class="hidden" />
       <button onclick="document.getElementById('image-input').click()" class="text-white text-2xl">📷</button>
-      <button onclick="sendThenShowAd()" class="bg-white text-indigo-600 font-semibold px-5 py-2 rounded-lg hover:bg-gray-100 transition">Send</button>
+      <button onclick="sendThenShowPrivateAd()" class="bg-white text-indigo-600 font-semibold px-5 py-2 rounded-lg hover:bg-gray-100 transition">Send</button>
     </div>
   </div>
 
@@ -126,7 +126,7 @@
   <!-- Input -->
   <div class="p-4 border-t border-white/20 bg-white/20 backdrop-blur-md flex gap-3 items-center">
     <input id="public-message-input" type="text" placeholder="Type a public message..." class="flex-1 bg-white/10 text-white placeholder-white border border-white/30 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-white" />
-    <button onclick="sendPublicMessage()" class="bg-white text-indigo-600 font-semibold px-5 py-2 rounded-lg hover:bg-gray-100 transition">Send</button>
+    <button onclick="sendThenShowPublicAd()" class="bg-white text-indigo-600 font-semibold px-5 py-2 rounded-lg hover:bg-gray-100 transition">Send</button>
   </div>
 </div>
 
@@ -251,7 +251,7 @@
     
     list.innerHTML += `
       <div onclick="openChat('${user.name}')" 
-           class="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-lg transition duration-200 cursor-pointer">
+           class="flex items-center justify-between p-4 bg-white/30 rounded-2xl shadow hover:shadow-lg transition duration-200 cursor-pointer">
         <div class="flex items-center gap-4">
           <img src="${user.photo}" class="w-12 h-12 rounded-full object-cover border" />
           <div>
@@ -264,7 +264,6 @@
     `;
   }
 }
-
 
   function openChat(userName) {
     selectedUser = users.find(u => u.name === userName);
@@ -358,41 +357,54 @@
  </script>
   <script src="https://cdn.adsgram.io/ads.js"></script>
 <script>
-  let AdController;
+  let PrivateAdController;
+  let PublicAdController;
 
-  // পেজ লোড হলে অ্যাড ইনিশিয়ালাইজ করো
+  // পেজ লোড হলে দুইটা আলাদা অ্যাড ইনিশিয়ালাইজ করো
   window.onload = async function () {
     try {
-      AdController = window.Adsgram.init({
-        blockId: "int-10200" // এখানে তোমার আসল block ID বসাও
+      PrivateAdController = window.Adsgram.init({
+        blockId: "int-10200" // প্রাইভেট মেসেজের জন্য
+      });
+
+      PublicAdController = window.Adsgram.init({
+        blockId: "10214" // পাবলিক মেসেজের জন্য
       });
     } catch (err) {
       console.log("Ad init failed:", err);
     }
   };
 
-  // এই ফাংশনটা বাটনে ক্লিক করলে কল হবে
-  async function sendThenShowAd() {
-    // প্রথমে মেসেজ পাঠাও
-    sendMessage();
+  // প্রাইভেট মেসেজ পাঠানোর পরে অ্যাড দেখাও
+  async function sendThenShowPrivateAd() {
+    sendMessage(); // মেসেজ পাঠাও
 
-    // তারপর অ্যাড দেখাও
     try {
-      if (AdController) {
-        await AdController.show(); // অ্যাড দেখাবে
+      if (PrivateAdController) {
+        await PrivateAdController.show(); // অ্যাড দেখাও
       }
     } catch (err) {
-      console.log("Ad failed to show:", err);
+      console.log("Private ad failed to show:", err);
     }
   }
 
-  // তোর আসল send() ফাংশন
-  function send() {
-    console.log("Message sent!");
-    // এখানে তুই যেটা মেসেজ সেন্ড করিস বা সার্ভারে পাঠাস, সেটা বসাবি
-    // উদাহরণ: socket.emit('send-message', { to: 'User', message: 'Hello!' });
+  // পাবলিক মেসেজ পাঠানোর পরে অ্যাড দেখাও
+  async function sendThenShowPublicAd() {
+    sendPublicMessage(); // মেসেজ পাঠাও
+
+    try {
+      if (PublicAdController) {
+        await PublicAdController.show(); // অ্যাড দেখাও
+      }
+    } catch (err) {
+      console.log("Public ad failed to show:", err);
+    }
   }
+
+
+
 </script>
+
   <script>function showPublicChat() {
   document.getElementById('user-panel').classList.add('hidden');
   document.getElementById('chat-body').classList.add('hidden');
