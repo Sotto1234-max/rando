@@ -201,7 +201,7 @@
 
       const unread = messages[user.name]?.some(msg => !msg.read);
       list.innerHTML += `
-  <div onclick="openChat('${user.name}')" class="flex items-center justify-between p-3 bg-white rounded-lg shadow hover:shadow-md transition cursor-pointer">
+  <div onclick="openChat('${user.name}')" class="flex items-center justify-between p-3 bg-white/30 rounded-lg shadow hover:shadow-md transition cursor-pointer">
     <div class="flex items-center gap-3">
       <img src="${user.photo}" class="w-12 h-12 rounded-full object-cover border" />
       <div>
