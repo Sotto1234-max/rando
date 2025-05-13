@@ -93,7 +93,7 @@ function handleBotMessages(realUser, socket) {
       text: botMessages[Math.floor(Math.random() * botMessages.length)]
     };
     socket.emit('receiveMessage', msg);
-    console.log(🤖 Bot ${msg.from} messaged ${msg.to});
+    console.log(`🤖 Bot ${msg.from} messaged ${msg.to}`);
   }, 3000);
 }
 
