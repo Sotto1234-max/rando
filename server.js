@@ -81,33 +81,21 @@ io.on('connection', (socket) => {
 });
 
 // 🧠 Simulate bot sending message to real user
-function handleBotMessages(user, socket) {
-  const botGroup = allBots.filter(bot => bot.gender !== user.gender); // opposite gender bots
+function handleBotMessages(realUser, socket) {
+  const bots = users.filter(u => u.isBot);
+  if (bots.length === 0) return;
 
-  // Randomly select 4–5 bots
-  const botsToMessage = botGroup.sort(() => 0.5 - Math.random()).slice(0, 5);
-
-  botsToMessage.forEach((bot, index) => {
-    const delay = Math.floor(Math.random() * 10000) + 10000; // 10–20s
-
-    setTimeout(() => {
-      const messageText = botMessages[Math.floor(Math.random() * botMessages.length)];
-
-      const msg = {
-        from: bot.name,
-        to: user.name,
-        message: messageText,
-        time: new Date().toLocaleTimeString(),
-       
-        read: false
-      };
-
-      io.to(user.id).emit('receiveMessage', msg);
-      console.log(`🤖 Bot ${bot.name} ➡️ ${user.name}: ${messageText}`);
-    }, delay + index * 1000);
-  });
+  const randomBot = bots[Math.floor(Math.random() * bots.length)];
+  setTimeout(() => {
+    const msg = {
+      from: randomBot.name,
+      to: realUser.name,
+      text: botMessages[Math.floor(Math.random() * botMessages.length)]
+    };
+    socket.emit('receiveMessage', msg);
+    console.log(🤖 Bot ${msg.from} messaged ${msg.to});
+  }, 3000);
 }
-
 
 // 🔁 Rotate 2–4 bots every 2–3 minutes
 setInterval(() => {
