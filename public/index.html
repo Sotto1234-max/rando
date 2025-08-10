@@ -22,9 +22,29 @@
     <!-- Description -->
     <p class="text-center text-white my-4">👇 play it and enjoy </p>
 
+    
+
     <!-- Video Player Style Section -->
     <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden mb-6 shadow-lg">
       <img src="https://wallpapercave.com/wp/wp3597497.jpg" alt="Video Thumbnail" class="w-full h-full object-cover opacity-80">
+
+      <!-- Eye-catching Facebook CTA placed top-right over the thumbnail -->
+      <div class="absolute top-4 right-4 flex items-center space-x-3">
+        <!-- Pulsing wallpaper behind the icon -->
+        <div class="absolute -inset-1 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 opacity-60 blur-md animate-pulse"></div>
+
+        <!-- Actual clickable Facebook button -->
+        <a href="https://www.facebook.com/profile.php?id=61579074299141" target="_blank" rel="noopener noreferrer"
+           aria-label="Open Facebook profile" class="relative z-10">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-white/90 shadow-lg transform hover:scale-105 transition-transform duration-200">
+            <!-- Facebook SVG logo (keeps crisp on retina) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7 text-blue-700">
+              <path fill="currentColor" d="M22 12.07C22 6.49 17.52 2 11.94 2S1.88 6.49 1.88 12.07c0 4.99 3.66 9.13 8.44 9.93v-7.04H8.07v-2.9h2.25V9.35c0-2.22 1.32-3.44 3.34-3.44.97 0 1.98.17 1.98.17v2.18h-1.12c-1.1 0-1.44.68-1.44 1.38v1.66h2.46l-.39 2.9h-2.07v7.04c4.78-.8 8.44-4.94 8.44-9.93z"/>
+            </svg>
+          </div>
+        </a>
+      </div>
+      
       <a href="https://otieu.com/4/9382477" target="_blank" class="absolute inset-0 flex items-center justify-center">
         <button class="bg-white bg-opacity-80 hover:bg-opacity-100 text-black p-4 rounded-full shadow-lg transition-all duration-300 ease-in-out">
           ▶️
